@@ -15,12 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Commentary:
-
-# The only purpose of this Makefile is to build .scm files to check them
-# for potential errors.
-
-MODULES_DIR = $(CURDIR)/modules
+MODULES_DIR = $(CURDIR)/lib
 SCRIPTS_DIR = $(CURDIR)/scripts
 
 MODULES = $(shell find -L $(MODULES_DIR) -mindepth 1 -name '*scm')
@@ -51,7 +46,7 @@ scripts:
 	@$(GUILEC_ENV) guild compile $(GUILEC_OPTS) $(SCRIPTS)
 
 clean:
-	$(RM) -f $(GO_FILES)
+	$(RM) $(GO_FILES)
 
 .PHONY: clean scripts
 
