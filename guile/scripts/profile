@@ -1,4 +1,5 @@
-#!/usr/bin/env guile
+#!/usr/bin/env guile-script
+-*- scheme -*-
 !#
 ;;; profile --- Populate my Guix profiles
 

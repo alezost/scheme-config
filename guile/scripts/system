@@ -1,4 +1,5 @@
-#!/usr/bin/env guile
+#!/usr/bin/env guile-script
+-*- scheme -*-
 !#
 ;;; system --- Check, build or reconfigure Guix system
 

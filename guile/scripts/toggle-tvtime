@@ -1,4 +1,5 @@
-#!/usr/bin/env guile
+#!/usr/bin/env guile-script
+-*- scheme -*-
 !#
 ;;; toggle-tvtime --- Start or kill tvtime
 

@@ -1,4 +1,5 @@
-#!/usr/bin/env guile
+#!/usr/bin/env guile-script
+-*- scheme -*-
 !#
 ;;; 2mp3 --- Convert media files to MP3 format
 

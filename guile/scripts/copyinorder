@@ -1,4 +1,5 @@
-#!/usr/bin/env guile
+#!/usr/bin/env guile-script
+-*- scheme -*-
 !#
 ;;; copyinorder --- Copy files in alphabetical order
 
