@@ -19,6 +19,8 @@ CHEZ = scheme
 BOOTDIR = $(CURDIR)/boot
 LIBDIR = $(CURDIR)/lib
 
+CHEZ_WRAPPER = chez
+
 # This is needed to make optional dependencies for $(SO_FILES) targets
 # below.
 .SECONDEXPANSION:
@@ -29,7 +31,13 @@ LIB_SLS_FILES = $(shell find $(LIBDIR) -name '*.sls')
 LIB_SO_FILES = $(LIB_SLS_FILES:%.sls=%.so)
 SO_FILES = $(LIB_SO_FILES) $(BOOT_SO_FILES)
 
-all: boot lib
+all: $(CHEZ_WRAPPER) boot lib
+
+$(CHEZ_WRAPPER):
+	@printf "⏺ Generating '$(CHEZ_WRAPPER)' shell script ...\n"
+	@echo '#!/bin/sh' > $(CHEZ_WRAPPER)
+	@echo 'exec $(CHEZ) --boot "$(BOOTDIR)/default.boot" "$$@"' >> $(CHEZ_WRAPPER)
+	@chmod 755 $(CHEZ_WRAPPER)
 
 boot: $(BOOT_FILES)
 
@@ -51,6 +59,7 @@ clean-lib:
 	$(RM) $(LIB_SO_FILES)
 
 clean: clean-boot clean-lib
+	$(RM) $(CHEZ_WRAPPER)
 
 .PHONY: all boot lib clean clean-boot clean-lib
 
