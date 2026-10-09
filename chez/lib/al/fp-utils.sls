@@ -1,0 +1,5 @@
+(library (al fp-utils)
+  (export and=> and<=)
+  (import (rnrs)
+          (only (chezscheme) include))
+  (include "fp-utils.scm"))
