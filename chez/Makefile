@@ -16,26 +16,42 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 CHEZ = scheme
+BOOTDIR = $(CURDIR)/boot
 LIBDIR = $(CURDIR)/lib
 
-SLS_FILES = $(shell find $(LIBDIR) -name '*.sls')
-SO_FILES = $(SLS_FILES:%.sls=%.so)
+# This is needed to make optional dependencies for $(SO_FILES) targets
+# below.
+.SECONDEXPANSION:
+BOOT_SCM_FILES = $(shell find $(BOOTDIR) -name '*.scm')
+BOOT_SO_FILES = $(BOOT_SCM_FILES:%.scm=%.so)
+BOOT_FILES = $(BOOT_SCM_FILES:%.scm=%.boot)
+LIB_SLS_FILES = $(shell find $(LIBDIR) -name '*.sls')
+LIB_SO_FILES = $(LIB_SLS_FILES:%.sls=%.so)
+SO_FILES = $(LIB_SO_FILES) $(BOOT_SO_FILES)
 
-all: lib
+all: boot lib
 
-lib: $(SO_FILES)
+boot: $(BOOT_FILES)
 
-$(SO_FILES): %.so: %.sls %.scm
-	@printf "⏺ Compiling libraries ...\n"
+$(BOOT_FILES): %.boot: %.so
+	echo '(make-boot-file "$@" (list (quote "scheme")) "$<")' | $(CHEZ) -q
+
+lib: $(LIB_SO_FILES)
+
+$(SO_FILES): %.so: $$(wildcard $$*.sls) $$(wildcard $$*.scm)
 	@cd $(dir $<) && \
-	echo '(compile-library "$<" "$@")' | $(CHEZ) -q
+	echo '(compile-file "$<" "$@")' | $(CHEZ) -q
+
+clean-boot:
+	@printf "⏺ Cleaning boot files ...\n"
+	$(RM) $(BOOT_FILES) $(BOOT_SO_FILES)
 
 clean-lib:
 	@printf "⏺ Cleaning libraries ...\n"
-	$(RM) $(SO_FILES)
+	$(RM) $(LIB_SO_FILES)
 
-clean: clean-lib
+clean: clean-boot clean-lib
 
-.PHONY: all lib clean clean-lib
+.PHONY: all boot lib clean clean-boot clean-lib
 
 # Makefile ends here
