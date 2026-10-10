@@ -54,6 +54,11 @@ $(BOOT_SO_FILES): %.so: %.scm
 	@cd $(dir $<) && \
 	echo '(compile-file "$<" "$@")' | $(CHEZ) -q
 
+$(BOOTDIR)/libs.scm: $(BOOTDIR)/default.scm
+$(BOOTDIR)/libs-quiet.scm: $(BOOTDIR)/libs.scm
+$(BOOT_SCM_FILES):
+	@touch "$@"
+
 $(SO_FILES): %.so: $$(wildcard $$*.sls) $$(wildcard $$*.scm) $(CHEZ_WRAPPER)
 	@cd $(dir $<) && \
 	echo '(compile-file "$<" "$@")' | $(CHEZ_WRAPPER) -q
