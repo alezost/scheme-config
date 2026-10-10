@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-CHEZ = scheme
 BOOTDIR = $(CURDIR)/boot
 LIBDIR = $(CURDIR)/lib
 
-CHEZ_WRAPPER = chez
+CHEZ = scheme
+CHEZ_WRAPPER = $(CURDIR)/chez
 
 # This is needed to make optional dependencies for $(SO_FILES) targets
 # below.
@@ -46,9 +46,9 @@ $(BOOT_FILES): %.boot: %.so
 
 lib: $(LIB_SO_FILES)
 
-$(SO_FILES): %.so: $$(wildcard $$*.sls) $$(wildcard $$*.scm)
+$(SO_FILES): %.so: $$(wildcard $$*.sls) $$(wildcard $$*.scm) $(CHEZ_WRAPPER)
 	@cd $(dir $<) && \
-	echo '(compile-file "$<" "$@")' | $(CHEZ) -q
+	echo '(compile-file "$<" "$@")' | $(CHEZ_WRAPPER) -q
 
 clean-boot:
 	@printf "⏺ Cleaning boot files ...\n"
