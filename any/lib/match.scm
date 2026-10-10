@@ -1,8 +1,24 @@
-;;;; match.scm -- portable hygienic pattern matcher -*- coding: utf-8 -*-
-;;
+;;; match.scm -- Portable hygienic pattern matcher
+
 ;; This code is written by Alex Shinn and placed in the
 ;; Public Domain.  All warranties are disclaimed.
 
+
+;;; Commentary:
+
+;; This file originates from <http://synthcode.com/scheme/match.scm>
+;; (downloaded 9 Oct 2026).  Changes comparing to the upstream version:
+;;
+;; - "**1", "=..", "*.." renamed to "..1", "..=", "..*" (as they were
+;;   named initially).
+;;
+;; - "_" is renamed to "·" because "_" is prohibited by R6RS (cannot be
+;;   used in Chez).
+;;
+;; - along with "..." and "___", "…" can also be used as an ellipsis
+;;   pattern.
+
+
 ;;> \example-import[(srfi 9)]
 
 ;;> A portable hygienic pattern matcher.
@@ -957,7 +973,8 @@
 
 (define-syntax match-lambda
   (syntax-rules ()
-    ((_ (pattern . body) ...) (lambda (expr) (match expr (pattern . body) ...)))))
+    ((_ (pattern . body) ...)
+     (lambda (expr) (match expr (pattern . body) ...)))))
 
 ;;> Similar to \scheme{match-lambda}.  Creates a procedure of any
 ;;> number of arguments, and matches the argument list against each
@@ -965,7 +982,8 @@
 
 (define-syntax match-lambda*
   (syntax-rules ()
-    ((_ (pattern . body) ...) (lambda expr (match expr (pattern . body) ...)))))
+    ((_ (pattern . body) ...)
+     (lambda expr (match expr (pattern . body) ...)))))
 
 ;;> Matches each var to the corresponding expression, and evaluates
 ;;> the body with all match variables in scope.  Raises an error if
@@ -1227,5 +1245,6 @@
                 ((memv? a sk2 fk2) fk2)
                 ((memv? anything-else sk2 fk2) sk2))))
           (memv? random-sym-to-match sk fk))
-        fk))))
-  ))
+        fk))))))
+
+;;; match.scm ends here
