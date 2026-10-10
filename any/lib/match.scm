@@ -372,7 +372,7 @@
 ;; pattern so far.
 
 (define-syntax match-two
-  (syntax-rules (___ · ..1 ..= ..* *** ? $ @ = struct object
+  (syntax-rules (___ … · ..1 ..= ..* *** ? $ @ = struct object
                      quote quasiquote and or not get! set!)
     ((match-two v () g+s (sk ...) fk i)
      (if (null? v) (sk ... i) fk))
@@ -399,6 +399,8 @@
      (if (pred v) (match-one v (and . p) g+s sk fk i) fk))
     ((match-two v (= proc p) . x)
      (let ((w (proc v))) (match-one w p . x)))
+    ((match-two v (p … . r) rest ...)
+     (match-two v (p ___ . r) rest ...))
     ((match-two v (p ___ . r) g+s sk fk i)
      (match-extract-vars p (match-gen-ellipsis v p r g+s sk fk i) i ()))
     ((match-two v (p) g+s sk fk i)
@@ -855,7 +857,7 @@
 ;; (match-extract-vars pattern continuation (ids ...) (new-vars ...))
 
 (define-syntax match-extract-vars
-  (syntax-rules (___ · ..1 ..= ..* *** ? $ @ = struct object
+  (syntax-rules (___ … · ..1 ..= ..* *** ? $ @ = struct object
                      quote quasiquote and or not get! set!)
     ((match-extract-vars (? pred . p) . x)
      (match-extract-vars p . x))
@@ -891,6 +893,7 @@
     ((match-extract-vars #(p ...) . x)
      (match-extract-vars (p ...) . x))
     ((match-extract-vars ·   (k ...) i v) (k ... v))
+    ((match-extract-vars …   (k ...) i v) (k ... v))
     ((match-extract-vars ___ (k ...) i v) (k ... v))
     ((match-extract-vars *** (k ...) i v) (k ... v))
     ((match-extract-vars ..1 (k ...) i v) (k ... v))
