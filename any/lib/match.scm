@@ -372,7 +372,8 @@
 ;; pattern so far.
 
 (define-syntax match-two
-  (syntax-rules (_ ___ ..1 ..= ..* *** quote quasiquote ? $ struct @ object = and or not set! get!)
+  (syntax-rules (___ · ..1 ..= ..* *** ? $ @ = struct object
+                     quote quasiquote and or not get! set!)
     ((match-two v () g+s (sk ...) fk i)
      (if (null? v) (sk ... i) fk))
     ((match-two v (quote p) g+s (sk ...) fk i)
@@ -447,7 +448,7 @@
          fk))
     ((match-two v #(p ...) g+s . x)
      (match-vector v 0 () (p ...) . x))
-    ((match-two v _ g+s (sk ...) fk i) (sk ... i))
+    ((match-two v · g+s (sk ...) fk i) (sk ... i))
     ;; Not a pair or vector or special literal, test to see if it's a
     ;; new symbol, in which case we just bind it, or if it's an
     ;; already bound symbol or some other literal, in which case we
@@ -854,7 +855,8 @@
 ;; (match-extract-vars pattern continuation (ids ...) (new-vars ...))
 
 (define-syntax match-extract-vars
-  (syntax-rules (_ ___ ..1 ..= ..* *** ? $ struct @ object = quote quasiquote and or not get! set!)
+  (syntax-rules (___ · ..1 ..= ..* *** ? $ @ = struct object
+                     quote quasiquote and or not get! set!)
     ((match-extract-vars (? pred . p) . x)
      (match-extract-vars p . x))
     ((match-extract-vars ($ rec . p) . x)
@@ -888,12 +890,12 @@
      (match-extract-vars p (match-extract-vars-step q k i v) i ()))
     ((match-extract-vars #(p ...) . x)
      (match-extract-vars (p ...) . x))
-    ((match-extract-vars _ (k ...) i v)    (k ... v))
-    ((match-extract-vars ___ (k ...) i v)  (k ... v))
-    ((match-extract-vars *** (k ...) i v)  (k ... v))
-    ((match-extract-vars ..1 (k ...) i v)  (k ... v))
-    ((match-extract-vars ..= (k ...) i v)  (k ... v))
-    ((match-extract-vars ..* (k ...) i v)  (k ... v))
+    ((match-extract-vars ·   (k ...) i v) (k ... v))
+    ((match-extract-vars ___ (k ...) i v) (k ... v))
+    ((match-extract-vars *** (k ...) i v) (k ... v))
+    ((match-extract-vars ..1 (k ...) i v) (k ... v))
+    ((match-extract-vars ..= (k ...) i v) (k ... v))
+    ((match-extract-vars ..* (k ...) i v) (k ... v))
     ;; This is the main part, the only place where we might add a new
     ;; var if it's an unbound symbol.
     ((match-extract-vars p (k ...) (i ...) v)
