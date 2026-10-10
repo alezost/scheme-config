@@ -29,7 +29,7 @@ BOOT_SO_FILES = $(BOOT_SCM_FILES:%.scm=%.so)
 BOOT_FILES = $(BOOT_SCM_FILES:%.scm=%.boot)
 LIB_SLS_FILES = $(shell find $(LIBDIR) -name '*.sls')
 LIB_SO_FILES = $(LIB_SLS_FILES:%.sls=%.so)
-SO_FILES = $(LIB_SO_FILES) $(BOOT_SO_FILES)
+SO_FILES = $(LIB_SO_FILES)
 
 all: $(CHEZ_WRAPPER) boot lib
 
@@ -50,11 +50,15 @@ boot: $(BOOT_FILES)
 $(BOOT_FILES): %.boot: %.so
 	echo '(make-boot-file "$@" (list (quote "scheme")) "$<")' | $(CHEZ) -q
 
-lib: $(LIB_SO_FILES)
+$(BOOT_SO_FILES): %.so: %.scm
+	@cd $(dir $<) && \
+	echo '(compile-file "$<" "$@")' | $(CHEZ) -q
 
 $(SO_FILES): %.so: $$(wildcard $$*.sls) $$(wildcard $$*.scm) $(CHEZ_WRAPPER)
 	@cd $(dir $<) && \
 	echo '(compile-file "$<" "$@")' | $(CHEZ_WRAPPER) -q
+
+lib: $(LIB_SO_FILES)
 
 clean-boot:
 	@printf "⏺ Cleaning boot files ...\n"
