@@ -33,10 +33,16 @@ SO_FILES = $(LIB_SO_FILES) $(BOOT_SO_FILES)
 
 all: $(CHEZ_WRAPPER) boot lib
 
+CHEZ_EXEC_STRING = \
+'exec $(CHEZ)\
+ --libdirs "$(LIBDIR)"\
+ --boot "$(BOOTDIR)/default.boot"\
+ "$$@"'
+
 $(CHEZ_WRAPPER):
 	@printf "⏺ Generating '$(CHEZ_WRAPPER)' shell script ...\n"
 	@echo '#!/bin/sh' > $(CHEZ_WRAPPER)
-	@echo 'exec $(CHEZ) --boot "$(BOOTDIR)/default.boot" "$$@"' >> $(CHEZ_WRAPPER)
+	@echo $(CHEZ_EXEC_STRING) >> $(CHEZ_WRAPPER)
 	@chmod 755 $(CHEZ_WRAPPER)
 
 boot: $(BOOT_FILES)
