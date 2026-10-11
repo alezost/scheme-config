@@ -20,6 +20,9 @@ LIBDIR = $(CURDIR)/lib
 
 CHEZ = scheme
 CHEZ_WRAPPER = $(CURDIR)/chez
+CHEZ_DAEMON = $(CURDIR)/daemon/chez-daemon
+DAEMON_SCM = $(CURDIR)/daemon/daemon.scm
+DAEMON_SO = $(DAEMON_SCM:%.scm=%.so)
 
 # This is needed to make optional dependencies for $(SO_FILES) targets
 # below.
@@ -31,19 +34,35 @@ LIB_SLS_FILES = $(shell find $(LIBDIR) -name '*.sls')
 LIB_SO_FILES = $(LIB_SLS_FILES:%.sls=%.so)
 SO_FILES = $(LIB_SO_FILES)
 
-all: $(CHEZ_WRAPPER) boot lib
+all: $(CHEZ_WRAPPER) boot lib daemon
 
-CHEZ_EXEC_STRING = \
+CHEZ_WRAPPER_EXEC_STRING = \
 'exec $(CHEZ)\
  --libdirs "$(LIBDIR)"\
  --boot "$(BOOTDIR)/default.boot"\
  "$$@"'
 
+CHEZ_DAEMON_EXEC_STRING = \
+'exec $(CHEZ)\
+ --libdirs "$(LIBDIR)"\
+ --boot "$(BOOTDIR)/libs-quiet.boot"\
+ --program "$(DAEMON_SO)"\
+ "$$@"'
+
+define make-shell-script
+@printf "⏵ Generating '$($(1))' shell script ...\n"
+@echo '#!/bin/sh' > $($(1))
+@echo $($(1)_EXEC_STRING) >> $($(1))
+@chmod 755 $($(1))
+endef
+
 $(CHEZ_WRAPPER):
-	@printf "⏺ Generating '$(CHEZ_WRAPPER)' shell script ...\n"
-	@echo '#!/bin/sh' > $(CHEZ_WRAPPER)
-	@echo $(CHEZ_EXEC_STRING) >> $(CHEZ_WRAPPER)
-	@chmod 755 $(CHEZ_WRAPPER)
+	$(call make-shell-script,CHEZ_WRAPPER)
+
+$(CHEZ_DAEMON):
+	$(call make-shell-script,CHEZ_DAEMON)
+
+daemon: $(CHEZ_DAEMON) $(DAEMON_SO)
 
 boot: $(BOOT_FILES)
 
@@ -63,19 +82,27 @@ $(SO_FILES): %.so: $$(wildcard $$*.sls) $$(wildcard $$*.scm) $(CHEZ_WRAPPER)
 	@cd $(dir $<) && \
 	echo '(compile-file "$<" "$@")' | $(CHEZ_WRAPPER) -q
 
+$(DAEMON_SO): $(DAEMON_SCM) $(CHEZ_WRAPPER)
+	@cd $(dir $<) && \
+	echo '(compile-program "$<" "$@")' | $(CHEZ_WRAPPER) -q
+
 lib: $(LIB_SO_FILES)
 
 clean-boot:
-	@printf "⏺ Cleaning boot files ...\n"
+	@printf "⏵ Cleaning boot files ...\n"
 	$(RM) $(BOOT_FILES) $(BOOT_SO_FILES)
 
+clean-daemon:
+	@printf "⏵ Cleaning daemon files ...\n"
+	$(RM) $(CHEZ_DAEMON) $(DAEMON_SO)
+
 clean-lib:
-	@printf "⏺ Cleaning libraries ...\n"
+	@printf "⏵ Cleaning libraries ...\n"
 	$(RM) $(LIB_SO_FILES)
 
 clean: clean-boot clean-lib
 	$(RM) $(CHEZ_WRAPPER)
 
-.PHONY: all boot lib clean clean-boot clean-lib
+.PHONY: all boot daemon lib clean clean-boot clean-daemon clean-lib
 
 # Makefile ends here
