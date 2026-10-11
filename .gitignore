@@ -1,2 +1,13 @@
+notes.org
+tmp/
+bin/
 *.go
-tmp
+*.so
+chicken/**/*.o
+chicken/**/*.link
+chicken/**/*.build.sh
+chicken/**/*.install.sh
+chicken/**/*.import.scm
+chez/**/*.boot
+chez/**/*.wpo
+chez/chez
