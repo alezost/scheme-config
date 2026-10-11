@@ -1,0 +1,114 @@
+;;; match.sls --- Chez-Scheme library for Alex Shinn's Match (Wright Compatible)
+
+;; Copyright (c) 2016 Federico Beffa <beffa@fbengineering.ch>
+
+;; Permission to use, copy, modify, and distribute this software for
+;; any purpose with or without fee is hereby granted, provided that the
+;; above copyright notice and this permission notice appear in all
+;; copies.
+;;
+;; THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+;; WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+;; WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
+;; AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+;; DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA
+;; OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+;; TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+;; PERFORMANCE OF THIS SOFTWARE.
+
+;;; Commentary:
+
+;; This file originates from
+;; <https://github.com/fedeinthemix/chez-matchable/blob/master/matchable.sls>
+
+;;; Code:
+
+;; The reader in #!r6rs mode doesn't allow the '..1' identifier.
+#!chezscheme
+
+(library (match)
+  (export
+    match
+    match-lambda
+    match-lambda*
+    match-let
+    match-let*
+    match-letrec
+    match-named-let
+    · … ___ ..1 ..= ..* *** ? $ @ struct object)
+
+  (import
+   (rnrs base)
+   (rnrs lists)
+   (rnrs mutable-pairs)
+   (rnrs records syntactic)
+   (rnrs records procedural)
+   (rnrs records inspection)
+   (rnrs syntax-case)
+   (only (chezscheme) iota include)
+   (srfi :0))
+
+  (define-syntax define-auxiliary-keyword
+    (syntax-rules ()
+      ((_ name)
+       (define-syntax name
+         (lambda (x)
+           (syntax-violation #f "misplaced use of auxiliary keyword" x))))))
+
+  (define-syntax define-auxiliary-keywords
+    (syntax-rules ()
+      ((_ name* ...)
+       (begin (define-auxiliary-keyword name*) ...))))
+
+  ;; We declare end export the symbols used as auxiliary identifiers
+  ;; in 'syntax-rules' to make them work in Chez Scheme's interactive
+  ;; environment. (FBE)
+  ;;
+  ;; Also "_" is replaced with "·" as the special identifier matching
+  ;; anything and not binding.  This is because R6RS forbids its use
+  ;; as an auxiliary literal in a syntax-rules form.
+  (define-auxiliary-keywords · … ___ ..1 ..= ..* *** ? $ @ struct object)
+
+  (define-syntax is-a?
+    (syntax-rules ()
+      ((_ rec rtn)
+       (let ((rec: rec))
+        (and (record? rec:)
+             (eq? (record-type-name (record-rtd rec:))
+                  (quote rtn)))))))
+
+  (define-syntax slot-ref
+    (syntax-rules ()
+      ((_ rtn rec n)
+       (let ((n: n) (rec: rec))
+         (if (number? n:)
+             ((record-accessor (record-rtd rec:) n:) rec:)
+             ;; If it's not a number, then it should be a symbol with
+             ;; the name of a field.
+             (let* ((rtd (record-rtd rec:))
+                    (fields (record-type-field-names rtd))
+                    (fields-idxs (map cons
+                                      (vector->list fields)
+                                      (iota (vector-length fields))))
+                    (idx (cdr (assv n: fields-idxs))))
+               ((record-accessor rtd idx) rec:)))))))
+
+  (define-syntax slot-set!
+    (syntax-rules ()
+      ((_ rtn rec n val)
+       (let ((n: n) (rec: rec))
+         (if (number? n:)
+             ((record-mutator (record-rtd rec:) n) rec: val)
+             ;; If it's not a number, then it should be a symbol with
+             ;; the name of a field.
+             (let* ((rtd (record-rtd rec:))
+                    (fields (record-type-field-names rtd))
+                    (fields-idxs (map cons
+                                      (vector->list fields)
+                                      (iota (vector-length fields))))
+                    (idx (cdr (assv n: fields-idxs))))
+               ((record-mutator rtd idx) rec: val)))))))
+
+  (include "match.scm"))
+
+;;; match.sls ends here

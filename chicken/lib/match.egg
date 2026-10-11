@@ -1,0 +1,5 @@
+((synopsis "Pattern matching library")
+ (author "Alex Shinn")
+ (license "Public Domain")
+ (category lang-exts)
+ (components (extension match)))
