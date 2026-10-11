@@ -23,11 +23,15 @@ LIBDIRS =				\
   $(LIBDIR)  				\
   $(LIBDIR)/al				\
 
+LIB_SCM_FILES = 				\
+  $(LIBDIR)/match.scm			\
+  $(LIBDIR)/al/al.fp-utils.scm
+
 all: lib bin
 
-lib:
+lib: $(LIB_SCM_FILES)
 	@for dir in $(LIBDIRS); do \
-	  printf "⏺ Building $$dir ...\n" ; \
+	  printf "⏵ Building $$dir ...\n" ; \
 	  cd "$$dir" && \
 	  chicken-install -no-install ; \
 	done
@@ -35,16 +39,16 @@ lib:
 bin: $(BINFILES)
 
 bin/%: scripts/%.scm
-	@printf "⏺ Compiling $< ...\n"
+	@printf "⏵ Compiling $< ...\n"
 	@mkdir -p $(dir $@)
 	csc -fixnum-arithmetic -O5 -o $@ $<
 
 clean-bin:
-	@printf "⏺ Cleaning binaries $< ...\n"
+	@printf "⏵ Cleaning binaries $< ...\n"
 	$(RM) $(BINFILES)
 
 clean-lib:
-	@printf "⏺ Cleaning $(LIBDIR) ...\n"
+	@printf "⏵ Cleaning $(LIBDIR) ...\n"
 	find $(LIBDIR) -type f \
 	     \( -name "*.so" \
 	     -o -name "*.o" \
