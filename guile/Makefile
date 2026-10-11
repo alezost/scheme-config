@@ -15,14 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-MODULES_DIR = $(CURDIR)/lib
+LIBDIR = $(CURDIR)/lib
+LIB_SLD_FILES = $(shell find $(LIBDIR) -name '*.sld')
+LIB_GO_FILES = $(LIB_SLD_FILES:%.sld=%.go)
+
 SCRIPTS_DIR = $(CURDIR)/scripts
-
-MODULES = $(shell find -L $(MODULES_DIR) -mindepth 1 -name '*scm')
 SCRIPTS = $(shell find -L $(SCRIPTS_DIR) -mindepth 1)
-
-# SCM_FILES = $(MODULES) $(SCRIPTS)
-GO_FILES = $(MODULES:%.scm=%.go)
 
 GUILEC_ENV =					\
   GUILE_AUTO_COMPILE=0
@@ -34,20 +32,25 @@ GUILEC_OPTS =					\
 
 GUILEC_ENV +=								\
   GUILE_WARN_DEPRECATED=detailed					\
-  GUILE_LOAD_PATH="$(MODULES_DIR):$$GUILE_LOAD_PATH"			\
-  GUILE_LOAD_COMPILED_PATH="$(MODULES_DIR):$$GUILE_LOAD_COMPILED_PATH"
+  GUILE_LOAD_PATH="$(LIBDIR):$$GUILE_LOAD_PATH"				\
+  GUILE_LOAD_COMPILED_PATH="$(LIBDIR):$$GUILE_LOAD_COMPILED_PATH"
 
-all: $(GO_FILES)
+all: lib
 
-$(GO_FILES): %.go: %.scm
+lib: $(LIB_GO_FILES)
+
+$(LIB_GO_FILES): %.go: %.sld
 	@$(GUILEC_ENV) guild compile $(GUILEC_OPTS) --output=$@ $<
 
 scripts:
 	@$(GUILEC_ENV) guild compile $(GUILEC_OPTS) $(SCRIPTS)
 
-clean:
-	$(RM) $(GO_FILES)
+clean-lib:
+	@printf "⏵ Cleaning libraries ...\n"
+	$(RM) $(LIB_GO_FILES)
 
-.PHONY: clean scripts
+clean: clean-lib
+
+.PHONY: lib scripts clean clean-lib
 
 # Makefile ends here
