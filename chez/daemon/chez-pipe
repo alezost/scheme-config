@@ -1,0 +1,24 @@
+#!/bin/sh
+# chez-pipe --- Write text to the default FIFO file of Chez Daemon
+
+FIFO_FILE="${XDG_RUNTIME_DIR:-${HOME}}/chez-daemon.fifo"
+
+case "$1" in
+    "" | -h | --help)
+        echo "Usage: chez-pipe EXPRESSIONS ...
+
+Pipe Scheme EXPRESSIONS to Chez Daemon FIFO file: '$FIFO_FILE'.
+Print the result of their evaluation to standard output."
+        exit 0 ;;
+    *)
+        if [ -p "$FIFO_FILE" ]; then
+            echo "$*" > "$FIFO_FILE"
+            read RESULT < "$FIFO_FILE"
+            echo "$RESULT"
+        else
+            echo "FIFO file does not exist: $FIFO_FILE
+Chez Daemon is probably not running"
+        fi
+esac
+
+# chez-pipe ends here
