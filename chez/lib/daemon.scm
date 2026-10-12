@@ -73,6 +73,19 @@
     (make-fifo-file file-name)
     (format #t "Reading Scheme expressions from ~a ...~%"
             file-name)
-    (fifo-repl file-name)))
+    ;; Delete FIFO file on exit and interrupt.
+    ;; 2 here ↓ is SIGINT, see "man signal.7".
+    (register-signal-handler 2 (lambda (signal) (exit)))
+    (let ((orig-eh (exit-handler)))
+      (parameterize ((exit-handler
+                      (lambda args
+                        ;; Send final message to the client before
+                        ;; deleting FIFO file.
+                        (with-output-to-file file-name
+                          (lambda () (write "Chez Daemon is quitting."))
+                          'append)
+                        (delete-file file-name)
+                        (apply orig-eh args))))
+        (fifo-repl file-name)))))
 
 ;;; daemon.scm ends here
