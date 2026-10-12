@@ -22,18 +22,11 @@
 
 ;;; Code:
 
-(define %fifo-permissions #o600)
-
-(define mkfifo
+(define make-fifo-file
   (let ((proc (foreign-procedure "mkfifo" (string unsigned-32) int)))
-    (lambda (file-name mode)
-      (or (zero? (proc file-name mode))
+    (lambda (file-name)
+      (or (zero? (proc file-name #o600))
           (error 'make-fifo "Failed to create FIFO file" file-name)))))
-
-(define (make-fifo-file file-name)
-  (when (file-exists? file-name)
-    (delete-file file-name))
-  (mkfifo file-name %fifo-permissions))
 
 (define (fifo-repl file-name)
   ;; Run REPL process on FIFO file FILE-NAME.  I.e., read Scheme
@@ -75,6 +68,8 @@
   ;; bother about it (the main problem with the specified file name would
   ;; be to create this file with all its parent directory tree).
   (let ((file-name (default-fifo-file)))
+    (when (file-exists? file-name)
+      (delete-file file-name))
     (make-fifo-file file-name)
     (format #t "Reading Scheme expressions from ~a ...~%"
             file-name)
