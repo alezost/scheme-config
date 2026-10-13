@@ -35,6 +35,7 @@ BOOT_FILES = $(BOOT_SCM_FILES:%.scm=%.boot)
 
 LIB_SLS_FILES = 			\
   $(SRCLIBDIR)/lib-aux.sls		\
+  $(SRCLIBDIR)/let-opt.sls		\
   $(SRCLIBDIR)/srfi/srfi-0.sls		\
   $(SRCLIBDIR)/srfi/srfi-26.sls		\
   $(SRCLIBDIR)/match.sls		\
