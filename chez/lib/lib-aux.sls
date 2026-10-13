@@ -1,9 +1,16 @@
 ;;; lib-aux.sls --- Auxiliary code for library declarations
 
 (library (lib-aux)
-  (export define-aux-symbol
+  (export check-arg
+          define-aux-symbol
           define-aux-symbols)
   (import (rnrs))
+
+  ;; `check-arg' is used by some SRFIs (e.g., 1 and 13)
+  (define-syntax check-arg
+    (syntax-rules ()
+      ((_ pred val caller)
+       val)))
 
   ;; These 2 syntax definitions originate from this commentary:
   ;; <https://github.com/cisco/ChezScheme/issues/41#issuecomment-218771556>.
