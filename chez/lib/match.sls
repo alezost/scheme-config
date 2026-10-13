@@ -46,19 +46,8 @@
    (rnrs records inspection)
    (rnrs syntax-case)
    (only (chezscheme) iota include)
+   (lib-aux)
    (srfi :0))
-
-  (define-syntax define-auxiliary-keyword
-    (syntax-rules ()
-      ((_ name)
-       (define-syntax name
-         (lambda (x)
-           (syntax-violation #f "misplaced use of auxiliary keyword" x))))))
-
-  (define-syntax define-auxiliary-keywords
-    (syntax-rules ()
-      ((_ name* ...)
-       (begin (define-auxiliary-keyword name*) ...))))
 
   ;; We declare end export the symbols used as auxiliary identifiers
   ;; in 'syntax-rules' to make them work in Chez Scheme's interactive
@@ -67,7 +56,7 @@
   ;; Also "_" is replaced with "·" as the special identifier matching
   ;; anything and not binding.  This is because R6RS forbids its use
   ;; as an auxiliary literal in a syntax-rules form.
-  (define-auxiliary-keywords · … ___ ..1 ..= ..* *** ? $ @ struct object)
+  (define-aux-symbols · … ___ ..1 ..= ..* *** ? $ @ struct object)
 
   (define-syntax is-a?
     (syntax-rules ()
