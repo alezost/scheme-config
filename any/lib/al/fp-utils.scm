@@ -24,6 +24,37 @@
 
 ;;; Code:
 
+(define (identity value)
+  value)
+
+(define (const value)
+  (lambda args value))
+
+(define (negate proc)
+  (lambda args
+    (not (apply proc args))))
+
+(define (compose-left proc . procedures)
+  ;; Compose PROC with PROCEDURES from left to right.
+  ;;
+  ;; For example,
+  ;;
+  ;; ((compose-left +
+  ;;                (lambda (n) (* 2 n))
+  ;;                (lambda (n) (+ 100 n)))
+  ;;  1 2 3)
+  ;;
+  ;; returns 112.
+  (if (null? procedures)
+    proc
+    (lambda args
+      (let loop ((procs procedures)
+                 (res (apply proc args)))
+        (if (null? procs)
+          res
+          (loop (cdr procs)
+                ((car procs) res)))))))
+
 (define (and=> value . procedures)
   ;; Return result of consecutive applying PROCEDURES to VALUE.
   ;;
