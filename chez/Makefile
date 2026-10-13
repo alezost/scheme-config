@@ -16,7 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 BOOTDIR = $(CURDIR)/boot
-LIBDIR = $(CURDIR)/lib
+SRCLIBDIR = $(CURDIR)/lib
+BLDLIBDIR = $(CURDIR)/build/lib
 
 CHEZ = scheme
 CHEZ_WRAPPER = $(CURDIR)/chez
@@ -24,27 +25,36 @@ CHEZ_DAEMON = $(CURDIR)/daemon/chez-daemon
 DAEMON_SCM = $(CURDIR)/daemon/daemon.scm
 DAEMON_SO = $(DAEMON_SCM:%.scm=%.so)
 
-# This is needed to make optional dependencies for $(SO_FILES) targets
-# below.
+# This is needed to make optional dependencies for $(LIB_SO_FILES)
+# targets below.
 .SECONDEXPANSION:
+
 BOOT_SCM_FILES = $(shell find $(BOOTDIR) -name '*.scm')
 BOOT_SO_FILES = $(BOOT_SCM_FILES:%.scm=%.so)
 BOOT_FILES = $(BOOT_SCM_FILES:%.scm=%.boot)
-LIB_SLS_FILES = $(shell find $(LIBDIR) -name '*.sls')
-LIB_SO_FILES = $(LIB_SLS_FILES:%.sls=%.so)
-SO_FILES = $(LIB_SO_FILES)
+
+LIB_SLS_FILES = 			\
+  $(SRCLIBDIR)/lib-aux.sls		\
+  $(SRCLIBDIR)/srfi/srfi-0.sls		\
+  $(SRCLIBDIR)/srfi/srfi-26.sls		\
+  $(SRCLIBDIR)/match.sls		\
+  $(SRCLIBDIR)/xosd.sls			\
+  $(SRCLIBDIR)/daemon.sls		\
+  $(SRCLIBDIR)/al/fp-utils.sls
+
+LIB_SO_FILES = $(LIB_SLS_FILES:$(SRCLIBDIR)/%.sls=$(BLDLIBDIR)/%.so)
 
 all: $(CHEZ_WRAPPER) boot lib daemon
 
 CHEZ_WRAPPER_EXEC_STRING = \
 'exec $(CHEZ)\
- --libdirs "$(LIBDIR)"\
+ --libdirs "$(BLDLIBDIR)"\
  --boot "$(BOOTDIR)/default.boot"\
  "$$@"'
 
 CHEZ_DAEMON_EXEC_STRING = \
 'exec $(CHEZ)\
- --libdirs "$(LIBDIR)"\
+ --libdirs "$(BLDLIBDIR)"\
  --boot "$(BOOTDIR)/libs-quiet.boot"\
  --program "$(DAEMON_SO)"\
  "$$@"'
@@ -78,7 +88,8 @@ $(BOOTDIR)/libs-quiet.scm: $(BOOTDIR)/libs.scm
 $(BOOT_SCM_FILES):
 	@touch "$@"
 
-$(SO_FILES): %.so: $$(wildcard $$*.sls) $$(wildcard $$*.scm) $(CHEZ_WRAPPER)
+$(BLDLIBDIR)/%.so: $(SRCLIBDIR)/%.sls $$(wildcard $(SRCLIBDIR)/%.scm) $(CHEZ_WRAPPER)
+	@mkdir -p $(dir $@)
 	@cd $(dir $<) && \
 	echo '(compile-file "$<" "$@")' | $(CHEZ_WRAPPER) -q
 
