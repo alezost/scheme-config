@@ -43,7 +43,7 @@
          (apply and=> ((car procedures) value)
                 (cdr procedures)))))
 
-(define-syntax and<=
+(define (and<= value . procedures)
   ;; Return VALUE if (PROC VALUE) is not false for all PROCEDURES.
   ;;
   ;; More precisely, for a given list of PROCEDURES,
@@ -55,11 +55,11 @@
   ;;   (PROCn VALUE) is #f.
   ;;
   ;; Otherwise, return VALUE.
-  (syntax-rules ()
-    ((_ value procedures ...)
-     (let ((val value))
-       (and (procedures val)
-            ...
-            val)))))
+  (and value
+       (let loop ((procs procedures))
+         (or (null? procs)
+             (and ((car procs) value)
+                  (loop (cdr procs)))))
+       value))
 
 ;;; fp-utils.scm ends here
