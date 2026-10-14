@@ -44,7 +44,7 @@
   #:use-module (srfi srfi-26)
   #:use-module (al let-macros)
   #:use-module (al strings)
-  #:use-module (al utils)
+  #:use-module (al misc)
   #:export (symlink?
             executable?
             file-exists??

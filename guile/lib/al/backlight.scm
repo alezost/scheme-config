@@ -32,7 +32,7 @@
   #:use-module (ice-9 ftw)
   #:use-module (al lists)
   #:use-module (al files)
-  #:use-module (al utils)
+  #:use-module (al main)
   #:use-module (al let-macros)
   #:export (backlight-available?
             get-backlight

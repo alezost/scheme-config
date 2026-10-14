@@ -1,9 +1,8 @@
-;;; utils.scm --- Miscellaneous utilities
+;;; misc.scm --- Miscellaneous utilities
 
 ;; Copyright © 2016–2026 Alex Kost
 
 ;; Author: Alex Kost <alezost@gmail.com>
-;; Created: 6 Feb 2016
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -31,38 +30,18 @@
 
 ;;; Code:
 
-(define-module (al utils)
+(define-module (al misc)
   #:use-module (ice-9 match)
   #:use-module (srfi srfi-1)
   #:use-module (al let-macros)
   #:export (with-no-output
             remove-keywords
-            define-lazy
             memoize
             set-locale
             scheme->lisp
             digits
             format-index
             split-path))
-
-(define-syntax-rule (define-lazy1 name doc body ...)
-  (define name
-    (let ((value (delay (begin body ...))))
-      (lambda () doc (force value)))))
-
-(define-syntax define-lazy
-  (lambda (x)
-    "Define NAME thunk that will evaluate BODY once (on the first call).
-NAME will return result of the first evaluation on subsequent calls
-without re-evaluating BODY.
-
-  (define-lazy NAME [DOC] BODY ...)"
-    (syntax-case x ()
-      ((_ name doc body ...)
-       (string? (syntax->datum #'doc))
-       #'(define-lazy1 name doc body ...))
-      ((_ name body ...)
-       #'(define-lazy1 name #f body ...)))))
 
 (define (memoize proc)
   "Return a memoizing version of PROC."
@@ -141,4 +120,4 @@ INDEX and TOTAL should be positive integers."
                             "d of ~d]")))
     (format #f fmt index total)))
 
-;;; utils.scm ends here
+;;; misc.scm ends here
