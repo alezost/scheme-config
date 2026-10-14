@@ -25,15 +25,13 @@
 
 ;;; Code:
 
-(define-syntax define-lazy
+(define-syntax-rule (define-lazy name body ...)
   ;; Define NAME thunk that will evaluate BODY once (on the first call).
   ;; NAME will return result of the first evaluation on subsequent calls
   ;; without re-evaluating BODY.
-  (syntax-rules ()
-    ((_ name body ...)
-     (define name
-       (let ((value (delay (begin body ...))))
-         (lambda () (force value)))))))
+  (define name
+    (let ((value (delay (begin body ...))))
+      (lambda () (force value)))))
 
 (define-syntax-rule (push! elt place)
   ;; Add ELT to the list stored in variable PLACE.
