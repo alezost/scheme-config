@@ -35,4 +35,8 @@
        (let ((value (delay (begin body ...))))
          (lambda () (force value)))))))
 
+(define-syntax-rule (push! elt place)
+  ;; Add ELT to the list stored in variable PLACE.
+  (set! place (cons elt place)))
+
 ;;; main.scm ends here

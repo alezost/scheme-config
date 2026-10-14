@@ -30,7 +30,6 @@
   #:use-module (srfi srfi-26)
   #:export (not-null?
             replace
-            push!
             split
             map-indexed
             for-each-indexed
@@ -54,10 +53,6 @@ containing the elements after ELT."
             (match tail
               (() '())
               ((_ rest ...) rest)))))
-
-(define-syntax-rule (push! elt place)
-  "Add ELT to the list stored in variable PLACE."
-  (set! place (cons elt place)))
 
 (define-syntax-rule (iterate-indexed iterate proc lists ...)
   "Helper for `map-indexed' and similar procedures."

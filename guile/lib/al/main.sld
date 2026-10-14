@@ -1,1 +1,5 @@
-../../../any/lib/al/main.sld
+(define-library (al main)
+  (export define-lazy
+          push!)
+  (import (guile))
+  (include "main.scm"))

@@ -1,6 +1,7 @@
 (library (al main)
   (export define-syntax-rule
-          define-lazy)
+          define-lazy
+          push!)
   (import (rnrs)
           (rnrs r5rs)           ; for `force'/`delay'
           (only (chezscheme) include))

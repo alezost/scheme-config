@@ -1,6 +1,7 @@
 (define-library (al main)
   (export define-syntax-rule
-          define-lazy)
+          define-lazy
+          push!)
   (import (scheme base))
 
   (begin
