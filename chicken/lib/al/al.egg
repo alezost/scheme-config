@@ -3,5 +3,6 @@
  (category misc)
  (license "GPL3")
  (components
+  (extension al.main)
   (extension al.fp-utils)
   ))
