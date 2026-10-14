@@ -37,4 +37,12 @@
   ;; Add ELT to the list stored in variable PLACE.
   (set! place (cons elt place)))
 
+(define 0? zero?)
+
+(cond-expand
+  ((or chez chicken)
+   (define 1+ add1)
+   (define 1- sub1))
+  (else))
+
 ;;; main.scm ends here

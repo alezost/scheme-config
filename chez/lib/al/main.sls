@@ -1,10 +1,13 @@
 (library (al main)
   (export define-syntax-rule
           define-lazy
-          push!)
+          push!
+          0? 1+ 1-)
   (import (rnrs)
           (rnrs r5rs)           ; for `force'/`delay'
-          (only (chezscheme) include))
+          (only (chezscheme)
+                include add1 sub1)
+          (srfi :0))
 
   (define-syntax define-syntax-rule
     (lambda (x)

@@ -1,8 +1,10 @@
 (define-library (al main)
   (export define-syntax-rule
           define-lazy
-          push!)
-  (import (scheme base))
+          push!
+          0? 1+ 1-)
+  (import (scheme base)
+          (chicken base))
 
   (begin
     (import-for-syntax (match))
