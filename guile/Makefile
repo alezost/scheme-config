@@ -16,7 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 LIBDIR = $(CURDIR)/lib
-LIB_SLD_FILES = $(shell find $(LIBDIR) -name '*.sld')
+LIB_SLD_FILES = 			\
+  $(LIBDIR)/match.sld			\
+  $(LIBDIR)/al/main.sld			\
+  $(LIBDIR)/al/fp-utils.sld		\
+  $(LIBDIR)/al/osd.sld
 LIB_GO_FILES = $(LIB_SLD_FILES:%.sld=%.go)
 
 SCRIPTS_DIR = $(CURDIR)/scripts
@@ -40,7 +44,8 @@ all: lib
 lib: $(LIB_GO_FILES)
 
 $(LIB_GO_FILES): %.go: %.sld
-	@$(GUILEC_ENV) guild compile $(GUILEC_OPTS) --output=$@ $<
+	@cd $(LIBDIR) && \
+	$(GUILEC_ENV) guild compile $(GUILEC_OPTS) --output=$@ $<
 
 scripts:
 	@$(GUILEC_ENV) guild compile $(GUILEC_OPTS) $(SCRIPTS)
