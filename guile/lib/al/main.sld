@@ -7,4 +7,5 @@
      (export 1+ 1-))
     (else))
   (import (guile))
-  (include "main.scm"))
+  (include "main.scm")
+  (begin (re-export define-syntax-rule)))
