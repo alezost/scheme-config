@@ -49,6 +49,7 @@ LIB_SLS_FILES = 			\
   $(SRCLIBDIR)/srfi/srfi-0.sls		\
   $(SRCLIBDIR)/srfi/srfi-26.sls		\
   $(SRCLIBDIR)/match.sls		\
+  $(SRCLIBDIR)/drecords.sls		\
   $(SRCLIBDIR)/xosd.sls			\
   $(SRCLIBDIR)/daemon.sls		\
   $(SRCLIBDIR)/al/main.sls		\

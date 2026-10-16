@@ -18,6 +18,7 @@
 LIBDIR = $(CURDIR)/lib
 LIB_SLD_FILES = 			\
   $(LIBDIR)/match.sld			\
+  $(LIBDIR)/drecords.sld		\
   $(LIBDIR)/al/main.sld			\
   $(LIBDIR)/al/fp-utils.sld		\
   $(LIBDIR)/al/osd.sld

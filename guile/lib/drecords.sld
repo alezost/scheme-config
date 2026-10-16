@@ -1,0 +1,8 @@
+(define-library (drecords)
+  (export define-drecord)
+  (import (rnrs)
+          (rnrs syntax-case)
+          (rnrs records syntactic)
+          (only (guile) include identity))
+  (begin (define syntax->list identity))
+  (include "drecords.scm"))

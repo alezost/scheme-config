@@ -1,0 +1,7 @@
+(library (drecords)
+  (export define-drecord)
+  (import (rnrs)
+          (rnrs syntax-case)
+          (rnrs records syntactic)
+          (only (chezscheme) include syntax->list))
+  (include "drecords.scm"))
