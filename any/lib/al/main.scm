@@ -29,9 +29,22 @@
   ;; Define NAME thunk that will evaluate BODY once (on the first call).
   ;; NAME will return result of the first evaluation on subsequent calls
   ;; without re-evaluating BODY.
-  (define name
+
+  ;; Not using delay/force because they require (rnrs r5rs) library for
+  ;; R6RS implementation.
+  #;(define name
     (let ((value (delay (begin body ...))))
-      (lambda () (force value)))))
+      (lambda () (force value))))
+  (define name
+    (let ((value #f)
+          (called? #f))
+      (lambda ()
+        (if called?
+          value
+          (begin
+            (set! called? #t)
+            (set! value (begin body ...))
+            value))))))
 
 (define-syntax-rule (push! elt place)
   ;; Add ELT to the list stored in variable PLACE.
