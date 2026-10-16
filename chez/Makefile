@@ -17,7 +17,17 @@
 
 BOOTDIR = $(CURDIR)/boot
 SRCLIBDIR = $(CURDIR)/lib
-BLDLIBDIR = $(CURDIR)/build/lib
+
+# I tried to keep ".so" files separately from source files.  But in this
+# case, Chez may complain like this:
+#
+#   Exception: run-time information for library (foo) has not been loaded
+#
+# while working with Chez using Geiser.  So just compile everything in
+# the source tree (as it is done with Guile and Chicken).
+#
+# BLDLIBDIR = $(CURDIR)/build/lib
+BLDLIBDIR = $(SRCLIBDIR)
 
 CHEZ = scheme
 CHEZ_WRAPPER = $(CURDIR)/chez
