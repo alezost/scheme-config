@@ -63,7 +63,7 @@ library.
   (newline))
 
 (define (integer->bool integer)
-  (not (= integer 0)))
+  (not (zero? integer)))
 
 
 ;; Enum definitions
@@ -83,6 +83,11 @@ library.
 
 
 ;;; Wrappers for libxosd procedures
+
+(define (foreign-set-result result name)
+  (or (zero? result)
+      (begin (print-error "Failed to set ~a" name)
+             #f)))
 
 (define create-osd
   ;; (create-osd [NUMBER-OF-LINES])
@@ -172,7 +177,7 @@ library.
       (integer->bool (proc osd)))))
 
 (define wait-while-osd-displayed
-  ;; (osd-displayed? OSD)
+  ;; (wait-while-osd-displayed OSD)
   ;;
   ;; Wait until OSD object will be hidden.
   ;; See also `display-string-in-osd'.
@@ -183,7 +188,12 @@ library.
   ;;
   ;; Change LENGTH of a slider or percentage bar of OSD object.
   ;; Setting LENGTH to -1 reverts to the default behavior.
-  (foreign-procedure "xosd_set_bar_length" (uptr int) int))
+  ;;
+  ;; Return #t on success, #f on failure.
+  (let ((proc (foreign-procedure "xosd_set_bar_length"
+                                 (uptr int) int)))
+    (lambda (osd length)
+      (foreign-set-result (proc osd length) "bar length"))))
 
 (define set-osd-position!
   ;; (set-osd-position! OSD POSITION)
@@ -191,6 +201,8 @@ library.
   ;; Change vertical POSITION of OSD object.
   ;; POSITION should be one of the following symbols: `top', `middle',
   ;; or `bottom'.
+  ;;
+  ;; Return #t on success, #f on failure.
   (let ((proc (foreign-procedure "xosd_set_pos" (uptr int) int)))
     (lambda (osd position)
       (let ((pos (case position
@@ -200,8 +212,8 @@ library.
                    (else (begin
                            (print-error "Unknown position: ~a" position)
                            #f)))))
-        (when pos
-          (proc osd pos))))))
+        (and pos
+             (foreign-set-result (proc osd pos) "position"))))))
 
 (define set-osd-align!
   ;; (set-osd-align! OSD ALIGN)
@@ -209,6 +221,8 @@ library.
   ;; Change horizontal alignment of OSD object.
   ;; ALIGN should be one of the following symbols: `left', `center',
   ;; or `right'.
+  ;;
+  ;; Return #t on success, #f on failure.
   (let ((proc (foreign-procedure "xosd_set_align" (uptr int) int)))
     (lambda (osd align)
       (let ((pos (case align
@@ -218,8 +232,8 @@ library.
                    (else (begin
                            (print-error "Unknown align: ~a" align)
                            #f)))))
-        (when pos
-          (proc osd pos))))))
+        (and pos
+             (foreign-set-result (proc osd pos) "align"))))))
 
 (define set-osd-timeout!
   ;; (set-osd-timeout! OSD SECONDS)
@@ -227,7 +241,11 @@ library.
   ;; Change the number of SECONDS before OSD object is hidden.
   ;; If SECONDS is -1 or 0 (not documented by libxosd), OSD does not
   ;; hide automatically.
-  (foreign-procedure "xosd_set_timeout" (uptr int) int))
+  ;;
+  ;; Return #t on success, #f on failure.
+  (let ((proc (foreign-procedure "xosd_set_timeout" (uptr int) int)))
+    (lambda (osd seconds)
+      (foreign-set-result (proc osd seconds) "timeout"))))
 
 (define set-osd-font!
   ;; (set-osd-font! OSD FONT)
@@ -235,7 +253,11 @@ library.
   ;; Change FONT of OSD object.
   ;; FONT is a string with the XLFD full name of the new font (see
   ;; `xfontsel' program for details).
-  (foreign-procedure "xosd_set_font" (uptr string) int))
+  ;;
+  ;; Return #t on success, #f on failure.
+  (let ((proc (foreign-procedure "xosd_set_font" (uptr string) int)))
+    (lambda (osd font)
+      (foreign-set-result (proc osd font) "font"))))
 
 (define set-osd-color!
   ;; (set-osd-color! OSD COLOR)
@@ -243,21 +265,35 @@ library.
   ;; Change COLOR of OSD object.
   ;; COLOR is a string with the color value (e.g., `#2e8b57') or the
   ;; color name (e.g., `DeepSkyBlue').
-  (foreign-procedure "xosd_set_colour" (uptr string) int))
+  ;;
+  ;; Return #t on success, #f on failure.
+  (let ((proc (foreign-procedure "xosd_set_colour" (uptr string) int)))
+    (lambda (osd color)
+      (foreign-set-result (proc osd color) "color"))))
 
 (define set-osd-shadow-color!
   ;; (set-osd-shadow-color! OSD COLOR)
   ;;
   ;; Change COLOR of the text shadow of OSD object.
   ;; See `set-osd-color!' for the meaning of COLOR.
-  (foreign-procedure "xosd_set_shadow_colour" (uptr string) int))
+  ;;
+  ;; Return #t on success, #f on failure.
+  (let ((proc (foreign-procedure "xosd_set_shadow_colour"
+                                 (uptr string) int)))
+    (lambda (osd color)
+      (foreign-set-result (proc osd color) "shadow color"))))
 
 (define set-osd-outline-color!
   ;; (set-osd-outline-color! OSD COLOR)
   ;;
   ;; Change COLOR of the text outline of OSD object.
   ;; See `set-osd-color!' for the meaning of COLOR.
-  (foreign-procedure "xosd_set_outline_colour" (uptr string) int))
+  ;;
+  ;; Return #t on success, #f on failure.
+  (let ((proc (foreign-procedure "xosd_set_outline_colour"
+                                 (uptr string) int)))
+    (lambda (osd color)
+      (foreign-set-result (proc osd color) "outline color"))))
 
 (define set-osd-vertical-offset!
   ;; (set-osd-vertical-offset! OSD OFFSET)
@@ -265,7 +301,12 @@ library.
   ;; Change vertical OFFSET of OSD object.
   ;; OFFSET is a number of pixels to offset OSD from its default vertical
   ;; position (specified by `set-osd-position!').
-  (foreign-procedure "xosd_set_vertical_offset" (uptr int) int))
+  ;;
+  ;; Return #t on success, #f on failure.
+  (let ((proc (foreign-procedure "xosd_set_vertical_offset"
+                                 (uptr int) int)))
+    (lambda (osd offset)
+      (foreign-set-result (proc osd offset) "vertical offset"))))
 
 (define set-osd-horizontal-offset!
   ;; (set-osd-horizontal-offset! OSD OFFSET)
@@ -273,19 +314,34 @@ library.
   ;; Change horizontal OFFSET of OSD object.
   ;; OFFSET is a number of pixels to offset OSD from its default
   ;; horizontal position (specified by `set-osd-align!').
-  (foreign-procedure "xosd_set_horizontal_offset" (uptr int) int))
+  ;;
+  ;; Return #t on success, #f on failure.
+  (let ((proc (foreign-procedure "xosd_set_horizontal_offset"
+                                 (uptr int) int)))
+    (lambda (osd offset)
+      (foreign-set-result (proc osd offset) "horizontal offset"))))
 
 (define set-osd-shadow-offset!
   ;; (set-osd-shadow-offset! OSD OFFSET)
   ;;
   ;; Change OFFSET (number of pixels) of the text shadow of OSD object.
-  (foreign-procedure "xosd_set_shadow_offset" (uptr int) int))
+  ;;
+  ;; Return #t on success, #f on failure.
+  (let ((proc (foreign-procedure "xosd_set_shadow_offset"
+                                 (uptr int) int)))
+    (lambda (osd offset)
+      (foreign-set-result (proc osd offset) "shadow offset"))))
 
 (define set-osd-outline-offset!
   ;; (set-osd-outline-offset! OSD OFFSET)
   ;;
   ;; Change OFFSET (number of pixels) of the text outline of OSD object.
-  (foreign-procedure "xosd_set_outline_offset" (uptr int) int))
+  ;;
+  ;; Return #t on success, #f on failure.
+  (let ((proc (foreign-procedure "xosd_set_outline_offset"
+                                 (uptr int) int)))
+    (lambda (osd offset)
+      (foreign-set-result (proc osd offset) "outline offset"))))
 
 (define osd-number-of-lines
   ;; (osd-number-of-lines OSD)
