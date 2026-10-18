@@ -1,0 +1,5 @@
+((synopsis "Auxiliary utilities for other libraries")
+ (author "Alex Kost")
+ (category misc)
+ (license "GPL3")
+ (components (extension aux-utils)))

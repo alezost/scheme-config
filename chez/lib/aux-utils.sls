@@ -1,5 +1,8 @@
-(library (al main)
-  (export define-syntax-rule
+(library (aux-utils)
+  (export identity const
+          negate compose-left
+          and=> and<=
+          define-syntax-rule
           define-lazy
           push!
           0? 1+ 1-)
@@ -18,4 +21,4 @@
                (syntax-rules ()
                  ((_ a ...)
                   (begin b ...)))))))))
-  (include "main.scm"))
+  (include "aux-utils.scm"))

@@ -6,5 +6,5 @@
   (import (rnrs)
           (only (chezscheme) include)
           (xosd)
-          (al main))
+          (aux-utils))
   (include "osd.scm"))

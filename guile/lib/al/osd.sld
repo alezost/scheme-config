@@ -5,5 +5,5 @@
           define-osd)
   (import (scheme base)
           (xosd)
-          (al main))
+          (aux-utils))
   (include "osd.scm"))

@@ -52,11 +52,10 @@ LIB_SLS_FILES = 			\
   $(SRCLIBDIR)/srfi/srfi-0.sls		\
   $(SRCLIBDIR)/srfi/srfi-26.sls		\
   $(SRCLIBDIR)/match.sls		\
+  $(SRCLIBDIR)/aux-utils.sls		\
   $(SRCLIBDIR)/drecords.sls		\
   $(SRCLIBDIR)/xosd.sls			\
   $(SRCLIBDIR)/daemon.sls		\
-  $(SRCLIBDIR)/al/main.sls		\
-  $(SRCLIBDIR)/al/fp-utils.sls		\
   $(SRCLIBDIR)/al/messages.sls		\
   $(SRCLIBDIR)/al/osd.sls
 

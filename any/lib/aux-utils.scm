@@ -1,6 +1,6 @@
-;;; fp-utils.scm --- Basic functional programming utilities
+;;; aux-utils.scm --- Main auxiliary utilities
 
-;; Copyright © 2026 Alex Kost
+;; Copyright © 2016–2026 Alex Kost
 
 ;; Author: Alex Kost <alezost@gmail.com>
 
@@ -19,8 +19,10 @@
 
 ;;; Commentary:
 
-;; This file provides some functional programming utilities
-;; that I find useful.
+;; This file provides main auxiliary utilities used by my other Scheme
+;; code.  Note to myself: it should have minimal number of dependencies,
+;; ideally, nothing more than `code-expand' (SRFI-0), `match', and maybe
+;; SRFI-26 (`cut').
 
 ;;; Code:
 
@@ -93,4 +95,37 @@
                   (loop (cdr procs)))))
        value))
 
-;;; fp-utils.scm ends here
+(define-syntax-rule (define-lazy name body ...)
+  ;; Define NAME thunk that will evaluate BODY once (on the first call).
+  ;; NAME will return result of the first evaluation on subsequent calls
+  ;; without re-evaluating BODY.
+
+  ;; Not using delay/force because they require (rnrs r5rs) library for
+  ;; R6RS implementation.
+  #;(define name
+    (let ((value (delay (begin body ...))))
+      (lambda () (force value))))
+  (define name
+    (let ((value #f)
+          (called? #f))
+      (lambda ()
+        (if called?
+          value
+          (begin
+            (set! called? #t)
+            (set! value (begin body ...))
+            value))))))
+
+(define-syntax-rule (push! elt place)
+  ;; Add ELT to the list stored in variable PLACE.
+  (set! place (cons elt place)))
+
+(define 0? zero?)
+
+(cond-expand
+  ((or chez chicken)
+   (define 1+ add1)
+   (define 1- sub1))
+  (else))
+
+;;; aux-utils.scm ends here
