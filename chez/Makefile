@@ -30,7 +30,10 @@ SRCLIBDIR = $(CURDIR)/lib
 BLDLIBDIR = $(SRCLIBDIR)
 
 CHEZ = scheme
+# CHEZ_WRAPPER is a script to build .so files and CHEZ_FULL is a user
+# replacement for "scheme".
 CHEZ_WRAPPER = $(CURDIR)/chez
+CHEZ_FULL = $(CURDIR)/chez-libs
 CHEZ_DAEMON = $(CURDIR)/daemon/chez-daemon
 DAEMON_SCM = $(CURDIR)/daemon/daemon.scm
 DAEMON_SO = $(DAEMON_SCM:%.scm=%.so)
@@ -59,12 +62,18 @@ LIB_SLS_FILES = 			\
 
 LIB_SO_FILES = $(LIB_SLS_FILES:$(SRCLIBDIR)/%.sls=$(BLDLIBDIR)/%.so)
 
-all: $(CHEZ_WRAPPER) boot lib daemon
+all: $(CHEZ_WRAPPER) $(CHEZ_FULL) boot lib daemon
 
 CHEZ_WRAPPER_EXEC_STRING = \
 'exec $(CHEZ)\
  --libdirs "$(BLDLIBDIR)"\
  --boot "$(BOOTDIR)/default.boot"\
+ "$$@"'
+
+CHEZ_FULL_EXEC_STRING = \
+'exec $(CHEZ)\
+ --libdirs "$(BLDLIBDIR)"\
+ --boot "$(BOOTDIR)/libs.boot"\
  "$$@"'
 
 CHEZ_DAEMON_EXEC_STRING = \
@@ -83,6 +92,9 @@ endef
 
 $(CHEZ_WRAPPER):
 	$(call make-shell-script,CHEZ_WRAPPER)
+
+$(CHEZ_FULL):
+	$(call make-shell-script,CHEZ_FULL)
 
 $(CHEZ_DAEMON):
 	$(call make-shell-script,CHEZ_DAEMON)
@@ -127,7 +139,7 @@ clean-lib:
 	$(RM) $(LIB_SO_FILES)
 
 clean: clean-boot clean-lib
-	$(RM) $(CHEZ_WRAPPER)
+	$(RM) $(CHEZ_WRAPPER) $(CHEZ_FULL)
 
 .PHONY: all boot daemon lib clean clean-boot clean-daemon clean-lib
 

@@ -11,4 +11,5 @@ chicken/**/*.import.scm
 chez/**/*.boot
 chez/**/*.wpo
 chez/chez
+chez/chez-libs
 chez/daemon/chez-daemon
