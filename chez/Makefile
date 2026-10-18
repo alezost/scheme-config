@@ -54,6 +54,7 @@ LIB_SLS_FILES = 			\
   $(SRCLIBDIR)/daemon.sls		\
   $(SRCLIBDIR)/al/main.sls		\
   $(SRCLIBDIR)/al/fp-utils.sls		\
+  $(SRCLIBDIR)/al/messages.sls		\
   $(SRCLIBDIR)/al/osd.sls
 
 LIB_SO_FILES = $(LIB_SLS_FILES:$(SRCLIBDIR)/%.sls=$(BLDLIBDIR)/%.so)
