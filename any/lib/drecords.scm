@@ -63,6 +63,26 @@ package or not:
 (package? foo)          ; #t
 (package? "foo")        ; #f
 
+Default field accessors (get/set procedures) can be replaced with custom
+ones by specifying (FIELD MAKE-ACCESSOR) instead of FIELD during record
+declaration.  MAKE-ACCESSOR is a procedure that takes the default
+accessor and returns a custom accessor.  For example:
+
+(define-drecord package
+  name version
+  (doc (lambda (acc)
+         (case-lambda
+           ((pkg) (acc pkg))
+           ((pkg doc) (acc pkg (string-append "docstring: " doc)))))))
+
+(define bar
+  (package
+    (name "bar")
+    (version "0.1")
+    (doc "Super-tool for every need")))
+
+(package-doc bar "foo replacer")  ; => "docstring: foo replacer"
+
 
 This library is inspired by Guix declarative records:
 <https://codeberg.org/guix/guix/src/branch/master/guix/records.scm>,
@@ -99,6 +119,32 @@ roughly expands to the following code:
 ;;; Code:
 
 (define-syntax define-drecord
+  ;; (define-drecord NAME [FIELD-SPEC ...])
+  ;;
+  ;; Define NAME record with mutable fields.  Each FIELD-SPEC can have
+  ;; one of the following forms:
+  ;;
+  ;;   FIELD
+  ;;   (FIELD MAKE-ACCESSOR)
+  ;;
+  ;; FIELD is a field name (should be a symbol).  MAKE-ACCESSOR is a
+  ;; procedure accepting a single argument, the default accessor, and
+  ;; returning a new accessor, a procedure to get and set record fields.
+  ;; See example in the commentary of this file.
+  ;;
+  ;; This syntax makes the following definitions:
+  ;;
+  ;;   `name'                   syntax to define a new record;
+  ;;   `name?'                  record predicate;
+  ;;   `name-field'             field accessors for all FIELDs.
+  ;;
+  ;; Also, since this is a `define-record-type' wrapper, the following
+  ;; definitions are also made (they should not be used directly):
+  ;;
+  ;;   `make-<name>'            syntax to define a new record;
+  ;;   `<name>?'                record predicate;
+  ;;   `<name>-field'           field getters for all FIELDs.
+  ;;   `<name>-field-set!'      field setters for all FIELDs.
   (lambda (x)
     (syntax-case x ()
       ((ddr name field ...)
@@ -115,20 +161,30 @@ roughly expands to the following code:
               (make-<name>-sym (string->symbol make-<name>-str)))
          (syntax-case
              (map (lambda (fld-stx)
-                    (let* ((fld-sym (syntax->datum fld-stx))
-                           (fld-str (symbol->string fld-sym))
-                           (g/s-str (string-append name-str "-" fld-str))
-                           (get-str (string-append <name>-str "-" fld-str))
-                           (set-str (string-append get-str "-set!"))
-                           (g/s-sym (string->symbol g/s-str))
-                           (get-sym (string->symbol get-str))
-                           (set-sym (string->symbol set-str)))
-                      (list (d->s g/s-sym)
-                            (d->s get-sym)
-                            (d->s set-sym))))
+                    (let-values
+                        (((fld-sym acc)
+                          (match (syntax->datum fld-stx)
+                            ((? symbol? fld)
+                             (values fld #f))
+                            ((fld acc)
+                             (values fld acc)))))
+                      (let* ((fld-str (symbol->string fld-sym))
+                             (g/s-str (string-append name-str "-" fld-str))
+                             (get-str (string-append <name>-str "-" fld-str))
+                             (set-str (string-append get-str "-set!"))
+                             (g/s-sym (string->symbol g/s-str))
+                             (get-sym (string->symbol get-str))
+                             (set-sym (string->symbol set-str)))
+                        (list (d->s fld-sym)
+                              (d->s acc)
+                              (d->s g/s-sym)
+                              (d->s get-sym)
+                              (d->s set-sym)))))
                   (syntax->list #'(field ...)))
              ()
-           (((field-get/set
+           (((field-name
+              field-accessor
+              field-get/set
               field-get
               field-set) ...)
             (with-syntax
@@ -138,14 +194,18 @@ roughly expands to the following code:
                  (make-<name> (d->s make-<name>-sym)))
               #'(begin
                   (define-record-type <name>
-                    (fields (mutable field) ...))
+                    (fields (mutable field-name) ...))
 
                   (define name? <name>?)
 
                   (define field-get/set
-                    (case-lambda
-                      ((obj)     (field-get obj))
-                      ((obj val) (field-set obj val) val)))
+                    (let ((orig (case-lambda
+                                  ((obj)     (field-get obj))
+                                  ((obj val) (field-set obj val) val)))
+                          (get-acc field-accessor))
+                      (if get-acc
+                        (get-acc orig)
+                        orig)))
                   ...
 
                   (define-syntax name
@@ -165,7 +225,7 @@ roughly expands to the following code:
                                          (let* ((f (syntax->datum f))
                                                 (a (assq f alist)))
                                            (and a (cdr a)))))
-                                      (syntax->list #'(field ...)))))
+                                      (syntax->list #'(field-name ...)))))
                              #'(make-<name> args (... ...)))))))))))))))))
 
 ;;; drecords.scm ends here

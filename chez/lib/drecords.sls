@@ -3,5 +3,6 @@
   (import (rnrs)
           (rnrs syntax-case)
           (rnrs records syntactic)
+          (match)
           (only (chezscheme) include syntax->list))
   (include "drecords.scm"))

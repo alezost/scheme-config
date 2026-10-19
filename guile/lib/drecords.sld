@@ -3,6 +3,7 @@
   (import (rnrs)
           (rnrs syntax-case)
           (rnrs records syntactic)
+          (match)
           (only (guile) include identity))
   (begin (define syntax->list identity))
   (include "drecords.scm"))
