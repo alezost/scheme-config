@@ -22,12 +22,9 @@
 This file originates from Guile-XOSD:
 <https://github.com/alezost/guile-xosd/blob/master/modules/xosd.scm>.
 
-It provides the same functionality as Guile-XOSD except `osd-color'
-procedure is not implemented (it is useless anyway).  Also, since Chez
-does not support procedures with keyword arguments, there is a
-difference in the procedure calls: `make-osd' and `set-osd!' are macros
-with declarative-style arguments instead of keyword-style procedures in
-Guile-XOSD.  Example:
+It provides a similar functionality as Guile-XOSD except it uses
+declarative style of specifying OSD properties for `make-osd' and
+`set-osd!' instead of the keyword-style.  Example:
 
 (define osd
   (make-osd
@@ -40,6 +37,15 @@ Guile-XOSD.  Example:
     (shadow-offset 3)))
 (display-string-in-osd osd "Hello, world!")
 
+Another difference is that instead of `set-osd-PROPERTY!' procedures
+used by Guile-XOSD (there are no getters, only setters there), this
+library uses `osd-PROPERTY' procedures to get or set OSD properties.
+For example, for `osd' variable defined above:
+
+(osd-color osd)          ; returns "yellow"
+(osd-color osd "black")  ; sets "black" color
+
+
 To use this library, Chez should load "libxosd.so" at first.
 Interactively (using REPL), this can be done by evaluating this:
 
@@ -97,14 +103,16 @@ library.
   ;; changed after OSD creation).
   (let ((proc (foreign-procedure "xosd_create" (int) uptr)))
     (case-lambda
-      (() (proc 1))
-      ((n) (proc n)))))
+      (() (create-osd 1))
+      ((n) (osd (object (proc n)))))))
 
 (define kill-osd
   ;; (kill-osd OSD)
   ;;
   ;; Destroy OSD object (free up the used memory).
-  (foreign-procedure "xosd_destroy" (uptr) int))
+  (let ((proc (foreign-procedure "xosd_destroy" (uptr) int)))
+    (lambda (osd)
+      (proc (osd-object osd)))))
 
 (define display-string-in-osd
   ;; (display-string-in-osd OSD STRING [LINE-NUMBER])
@@ -123,9 +131,9 @@ library.
                                  int)))
     (case-lambda
       ((osd string)
-       (proc osd 0 %XOSD_string string))
+       (display-string-in-osd osd string 0))
       ((osd string line-number)
-       (proc osd line-number %XOSD_string string)))))
+       (proc (osd-object osd) line-number %XOSD_string string)))))
 
 (define-values (display-percentage-in-osd
                 display-slider-in-osd)
@@ -140,9 +148,9 @@ library.
        ;; PERCENTAGE is a number between 0 and 100.
        ;; See also `display-string-in-osd'.
        ((osd percentage)
-        (proc osd 0 %XOSD_percentage percentage))
+        (display-percentage-in-osd osd percentage 0))
        ((osd percentage line-number)
-        (proc osd line-number %XOSD_percentage percentage)))
+        (proc (osd-object osd) line-number %XOSD_percentage percentage)))
 
      (case-lambda
        ;; (display-slider-in-osd OSD SLIDER [LINE-NUMBER])
@@ -151,21 +159,25 @@ library.
        ;; SLIDER is a number between 0 and 100.
        ;; See also `display-string-in-osd'.
        ((osd slider)
-        (proc osd 0 %XOSD_slider slider))
+        (display-slider-in-osd osd slider 0))
        ((osd slider line-number)
-        (proc osd line-number %XOSD_slider slider))))))
+        (proc (osd-object osd) line-number %XOSD_slider slider))))))
 
 (define hide-osd
   ;; (hide-osd OSD)
   ;;
   ;; Hide OSD object.
-  (foreign-procedure "xosd_hide" (uptr) int))
+  (let ((proc (foreign-procedure "xosd_hide" (uptr) int)))
+    (lambda (osd)
+      (proc (osd-object osd)))))
 
 (define show-osd
   ;; (show-osd OSD)
   ;;
   ;; Show (redisplay) hidden OSD object.
-  (foreign-procedure "xosd_show" (uptr) int))
+  (let ((proc (foreign-procedure "xosd_show" (uptr) int)))
+    (lambda (osd)
+      (proc (osd-object osd)))))
 
 (define osd-displayed?
   ;; (osd-displayed? OSD)
@@ -173,15 +185,18 @@ library.
   ;; Return #t if OSD object is displayed.  Return #f otherwise.
   (let ((proc (foreign-procedure "xosd_is_onscreen" (uptr) int)))
     (lambda (osd)
-      ;; TODO 'xosd_is_onscreen' can also return -1 (on failure).
-      (integer->bool (proc osd)))))
+      ;; XXX 'xosd_is_onscreen' can also return -1 (on failure).
+      (integer->bool (proc (osd-object osd))))))
 
 (define wait-while-osd-displayed
   ;; (wait-while-osd-displayed OSD)
   ;;
   ;; Wait until OSD object will be hidden.
   ;; See also `display-string-in-osd'.
-  (foreign-procedure "xosd_wait_until_no_display" (uptr) int))
+  (let ((proc (foreign-procedure "xosd_wait_until_no_display"
+                                 (uptr) int)))
+    (lambda (osd)
+      (proc (osd-object osd)))))
 
 (define set-osd-bar-length!
   ;; (set-osd-bar-length! OSD LENGTH)
@@ -347,13 +362,45 @@ library.
   ;; (osd-number-of-lines OSD)
   ;;
   ;; Return the maximum number of lines allowed for OSD object.
-  (foreign-procedure "xosd_get_number_lines" (uptr) int))
+  (let ((proc (foreign-procedure "xosd_get_number_lines" (uptr) int)))
+    (lambda (osd)
+      (proc (osd-object osd)))))
 
 (define scroll-osd
   ;; (scroll-osd OSD NUMBER-OF-LINES)
   ;;
   ;; Scroll OSD object by NUMBER-OF-LINES.
-  (foreign-procedure "xosd_scroll" (uptr int) int))
+  (let ((proc (foreign-procedure "xosd_scroll" (uptr int) int)))
+    (lambda (osd lines)
+      (proc (osd-object osd) lines))))
+
+
+;;; OSD record
+
+(define (osd-accessor-getter setter)
+  (lambda (acc)
+    (case-lambda
+      ((record) (acc record))
+      ((record value)
+       (if (equal? value (acc record))
+         value
+         (and (setter (osd-object record) value)
+              (acc record value)))))))
+
+(define-drecord osd
+  object
+  (align             (osd-accessor-getter set-osd-align!))
+  (position          (osd-accessor-getter set-osd-position!))
+  (bar-length        (osd-accessor-getter set-osd-bar-length!))
+  (timeout           (osd-accessor-getter set-osd-timeout!))
+  (color             (osd-accessor-getter set-osd-color!))
+  (font              (osd-accessor-getter set-osd-font!))
+  (horizontal-offset (osd-accessor-getter set-osd-horizontal-offset!))
+  (vertical-offset   (osd-accessor-getter set-osd-vertical-offset!))
+  (outline-offset    (osd-accessor-getter set-osd-outline-offset!))
+  (shadow-offset     (osd-accessor-getter set-osd-shadow-offset!))
+  (outline-color     (osd-accessor-getter set-osd-outline-color!))
+  (shadow-color      (osd-accessor-getter set-osd-shadow-color!)))
 
 
 ;;; Higher level interface
@@ -362,15 +409,14 @@ library.
   ;; (set-osd! OSD [(PROP VALUE) ...])
   ;;
   ;; Update OSD object with the specified arguments.  Each PROP should
-  ;; be one of the OSD properties for which `set-osd-PROP!' procedure is
-  ;; defined e.g., `position', `shadow-color', etc.
+  ;; be one of the OSD properties e.g., `position', `shadow-color', etc.
   (lambda (x)
     (define (prop->proc prop-syntax)
       (syntax-case prop-syntax ()
         (prop
          (let* ((prop-symbol (syntax->datum #'prop))
                 (prop-string (symbol->string prop-symbol))
-                (proc-string (string-append "set-osd-" prop-string "!"))
+                (proc-string (string-append "osd-" prop-string))
                 (proc-symbol (string->symbol proc-string)))
            (datum->syntax #'prop proc-symbol)))))
     (syntax-case x ()
@@ -407,7 +453,7 @@ library.
               osd)))))))
 
 (define (toggle-osd osd)
-  "Hide/show OSD."
+  ;; Hide/show OSD.
   (if (osd-displayed? osd)
     (hide-osd osd)
     (show-osd osd)))

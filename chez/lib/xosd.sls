@@ -1,5 +1,6 @@
 (library (xosd)
   (export
+   osd?
    make-osd
    create-osd
    kill-osd
@@ -11,20 +12,21 @@
    osd-displayed?
    wait-while-osd-displayed
    set-osd!
-   set-osd-align!
-   set-osd-position!
-   set-osd-bar-length!
-   set-osd-timeout!
-   set-osd-color!
-   set-osd-font!
-   set-osd-horizontal-offset!
-   set-osd-vertical-offset!
-   set-osd-outline-offset!
-   set-osd-shadow-offset!
-   set-osd-outline-color!
-   set-osd-shadow-color!
+   osd-align
+   osd-position
+   osd-bar-length
+   osd-timeout
+   osd-color
+   osd-font
+   osd-horizontal-offset
+   osd-vertical-offset
+   osd-outline-offset
+   osd-shadow-offset
+   osd-outline-color
+   osd-shadow-color
    display-string-in-osd
    display-percentage-in-osd
    display-slider-in-osd)
-  (import (chezscheme))
+  (import (chezscheme)
+          (drecords))
   (include "xosd.scm"))
