@@ -1,5 +1,8 @@
 ;;; default.scm --- Initialization file to modify SRFI libraries location
 
+;; (compile-imported-libraries #f)  ; default
+(generate-wpo-files #t)
+
 (library-search-handler
  ;; I keep SRFI libraries in "srfi-N.sls" files, not in ":N.sls" files,
  ;; so make Chez find them.

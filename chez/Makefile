@@ -138,11 +138,11 @@ clean-boot:
 
 clean-daemon:
 	@printf "⏵ Cleaning daemon files ...\n"
-	$(RM) $(CHEZ_DAEMON) $(DAEMON_SO)
+	$(RM) $(CHEZ_DAEMON) $(DAEMON_SO) $(DAEMON_SO:%.so=%.wpo)
 
 clean-lib:
 	@printf "⏵ Cleaning libraries ...\n"
-	$(RM) $(LIB_SO_FILES)
+	$(RM) $(LIB_SO_FILES) $(LIB_SO_FILES:%.so=%.wpo)
 
 clean: clean-boot clean-lib
 	$(RM) $(CHEZ_WRAPPER) $(CHEZ_FULL)
