@@ -423,7 +423,8 @@ library.
       ((_ osd (prop value) ...)
        (with-syntax (((proc ...)
                       (map prop->proc (syntax->list #'(prop ...)))))
-         #'(begin (proc osd value) ...))))))
+         #'(let ((o osd))
+             (proc o value) ...))))))
 
 (define-syntax make-osd
   ;; (make-osd [(PROP VALUE) ...])
