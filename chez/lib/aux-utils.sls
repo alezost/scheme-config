@@ -6,14 +6,18 @@
           and=> and<=
           define-syntax-rule
           define-lazy
+          parse-arg-syntax
           push!
           assq-get assv-get assoc-get
           =0 1+ 1-)
   (import (rnrs)
           (only (chezscheme)
                 include
+                syntax->list
                 add1 sub1)
-          (srfi :0))
+          (match)
+          (srfi :0)
+          (srfi :26))
   (include "aux-utils.chez.scm")
   (include "aux-utils.scm"))
 
