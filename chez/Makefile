@@ -115,7 +115,10 @@ $(BOOTDIR)/libs-quiet.scm: $(BOOTDIR)/libs.scm
 $(BOOT_SCM_FILES):
 	@touch "$@"
 
-$(BLDLIBDIR)/%.so: $(SRCLIBDIR)/%.sls $$(wildcard $(SRCLIBDIR)/%.scm) $(CHEZ_WRAPPER)
+$(BLDLIBDIR)/%.so: $(SRCLIBDIR)/%.sls \
+		   $$(wildcard $(SRCLIBDIR)/%.scm) \
+		   $$(wildcard $(SRCLIBDIR)/%.chez.scm) \
+		   $(CHEZ_WRAPPER)
 	@mkdir -p $(dir $@)
 	@cd $(dir $<) && \
 	echo '(compile-file "$<" "$@")' | $(CHEZ_WRAPPER) -q

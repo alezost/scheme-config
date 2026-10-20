@@ -1,3 +1,5 @@
+;;; aux-utils.sls --- Chez library for auxiliary utilities
+
 (library (aux-utils)
   (export identity const
           negate compose-left
@@ -9,17 +11,10 @@
           =0 1+ 1-)
   (import (rnrs)
           (only (chezscheme)
-                include add1 sub1)
+                include
+                add1 sub1)
           (srfi :0))
-
-  (define-syntax define-syntax-rule
-    (lambda (x)
-      (syntax-case x ()
-        ((_ (name args ...) body ...)
-         (with-syntax (((a ...) #'(args ...))
-                       ((b ...) #'(body ...)))
-           #'(define-syntax name
-               (syntax-rules ()
-                 ((_ a ...)
-                  (begin b ...)))))))))
+  (include "aux-utils.chez.scm")
   (include "aux-utils.scm"))
+
+;;; aux-utils.sls ends here
