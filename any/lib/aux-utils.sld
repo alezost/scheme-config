@@ -6,6 +6,7 @@
           and=> and<=
           define-lazy
           push!
+          assq-get assv-get assoc-get
           =0)
 
   (cond-expand

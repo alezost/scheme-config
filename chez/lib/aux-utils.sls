@@ -5,6 +5,7 @@
           define-syntax-rule
           define-lazy
           push!
+          assq-get assv-get assoc-get
           =0 1+ 1-)
   (import (rnrs)
           (only (chezscheme)
