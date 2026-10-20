@@ -28,5 +28,6 @@
    display-percentage-in-osd
    display-slider-in-osd)
   (import (chezscheme)
-          (drecords))
+          (drecords)
+          (only (aux-utils) parse-arg-syntax))
   (include "xosd.scm"))

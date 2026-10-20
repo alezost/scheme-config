@@ -435,21 +435,9 @@ library.
   (lambda (x)
     (syntax-case x ()
       ((_ args ...)
-       (syntax-case
-           (let loop ((rest (syntax->list #'(args ...)))
-                      (res  '()))
-             (if (null? rest)
-               (list 1 res)
-               (let* ((arg  (syntax->list (car rest)))
-                      (prop (syntax->datum (car arg))))
-                 (if (symbol=? prop 'lines)
-                   (list (cadr arg) ; prop value
-                         (append res (cdr rest)))
-                   (loop (cdr rest)
-                         (cons arg res))))))
-           ()
+       (parse-arg-syntax '(lines) #'(args ...)
          ((lines (args ...))
-          #'(let ((osd (create-osd lines)))
+          #'(let ((osd (create-osd (or lines 1))))
               (set-osd! osd args ...)
               osd)))))))
 
