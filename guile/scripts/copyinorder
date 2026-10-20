@@ -26,7 +26,7 @@
  (ice-9 match)
  (srfi srfi-26)
  (srfi srfi-37)
- (al let-macros)
+ (let-macros)
  (al lists)
  (al strings)
  (al misc)

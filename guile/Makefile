@@ -19,6 +19,7 @@ LIBDIR = $(CURDIR)/lib
 LIB_SLD_FILES = 			\
   $(LIBDIR)/match.sld			\
   $(LIBDIR)/aux-utils.sld		\
+  $(LIBDIR)/let-macros.sld		\
   $(LIBDIR)/drecords.sld		\
   $(LIBDIR)/al/messages.sld		\
   $(LIBDIR)/al/osd.sld

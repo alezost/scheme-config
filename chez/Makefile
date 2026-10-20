@@ -53,6 +53,7 @@ LIB_SLS_FILES = 			\
   $(SRCLIBDIR)/srfi/srfi-26.sls		\
   $(SRCLIBDIR)/match.sls		\
   $(SRCLIBDIR)/aux-utils.sls		\
+  $(SRCLIBDIR)/let-macros.sls		\
   $(SRCLIBDIR)/drecords.sls		\
   $(SRCLIBDIR)/xosd.sls			\
   $(SRCLIBDIR)/daemon.sls		\

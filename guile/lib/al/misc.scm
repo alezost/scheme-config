@@ -33,7 +33,7 @@
 (define-module (al misc)
   #:use-module (ice-9 match)
   #:use-module (srfi srfi-1)
-  #:use-module (al let-macros)
+  #:use-module (let-macros)
   #:export (with-no-output
             remove-keywords
             memoize

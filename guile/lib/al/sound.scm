@@ -30,7 +30,7 @@
   #:use-module (ice-9 regex)
   #:use-module (al processes)
   #:use-module (al records)
-  #:use-module (al let-macros)
+  #:use-module (let-macros)
   #:export (make-sound
             sound*
             sound?

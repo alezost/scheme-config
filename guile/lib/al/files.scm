@@ -42,7 +42,7 @@
   #:use-module (ice-9 regex)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-26)
-  #:use-module (al let-macros)
+  #:use-module (let-macros)
   #:use-module (al strings)
   #:use-module (al misc)
   #:export (symlink?

@@ -33,7 +33,7 @@
   #:use-module (aux-utils)
   #:use-module (al lists)
   #:use-module (al files)
-  #:use-module (al let-macros)
+  #:use-module (let-macros)
   #:export (backlight-available?
             get-backlight
             set-backlight

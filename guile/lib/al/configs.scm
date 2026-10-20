@@ -27,7 +27,7 @@
 
 (define-module (al configs)
   #:use-module (srfi srfi-26)
-  #:use-module (al let-macros)
+  #:use-module (let-macros)
   #:use-module (al lists)
   #:use-module (al files)
   #:use-module (al links)

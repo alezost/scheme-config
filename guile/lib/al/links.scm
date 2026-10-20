@@ -26,7 +26,7 @@
 ;;; Code:
 
 (define-module (al links)
-  #:use-module (al let-macros)
+  #:use-module (let-macros)
   #:use-module (al files)
   #:use-module (al records)
   #:export (make-link

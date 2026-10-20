@@ -28,7 +28,7 @@
 ;;; Code:
 
 (define-module (al sources)
-  #:use-module (al let-macros)
+  #:use-module (let-macros)
   #:use-module (al messages)
   #:use-module (al records)
   #:export (make-source

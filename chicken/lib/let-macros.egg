@@ -1,0 +1,5 @@
+((synopsis "Let-like conditional syntax family")
+ (author "Alex Kost")
+ (category misc)
+ (license "GPL3")
+ (components (extension let-macros)))
