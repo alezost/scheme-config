@@ -120,7 +120,7 @@
   ;; Add ELT to the list stored in variable PLACE.
   (set! place (cons elt place)))
 
-(define 0? zero?)
+(define =0 zero?)
 
 (cond-expand
   ((or chez chicken)

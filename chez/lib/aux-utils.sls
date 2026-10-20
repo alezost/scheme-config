@@ -5,7 +5,7 @@
           define-syntax-rule
           define-lazy
           push!
-          0? 1+ 1-)
+          =0 1+ 1-)
   (import (rnrs)
           (only (chezscheme)
                 include add1 sub1)

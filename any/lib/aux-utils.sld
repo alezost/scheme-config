@@ -6,7 +6,7 @@
           and=> and<=
           define-lazy
           push!
-          0?)
+          =0)
 
   (cond-expand
     (guile
