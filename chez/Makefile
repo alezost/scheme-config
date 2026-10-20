@@ -55,6 +55,9 @@ LIB_SLS_FILES = 			\
   $(SRCLIBDIR)/aux-utils.sls		\
   $(SRCLIBDIR)/let-macros.sls		\
   $(SRCLIBDIR)/drecords.sls		\
+  $(SRCLIBDIR)/srfi/srfi-8.sls		\
+  $(SRCLIBDIR)/srfi/srfi-23.sls		\
+  $(SRCLIBDIR)/srfi/srfi-1.sls		\
   $(SRCLIBDIR)/xosd.sls			\
   $(SRCLIBDIR)/daemon.sls		\
   $(SRCLIBDIR)/al/messages.sls		\
