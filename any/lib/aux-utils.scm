@@ -120,6 +120,8 @@
   ;; Add ELT to the list stored in variable PLACE.
   (set! place (cons elt place)))
 
+(define not-null? (negate null?))
+
 (define (assq-get key alist)
   ;; Having (KEY . VALUE) pairs in ALIST, return VALUE.
   ;; Return #f if there is no such KEY in ALIST.

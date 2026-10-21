@@ -6,6 +6,7 @@
           and=> and<=
           define-lazy
           push!
+          not-null?
           assq-get assv-get assoc-get
           =0)
 

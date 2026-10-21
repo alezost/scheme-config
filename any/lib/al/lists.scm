@@ -23,8 +23,6 @@
 
 ;;; Code:
 
-(define not-null? (negate null?))
-
 (define (replace pred new lst)
   ;; Replace element of LST matching PRED with NEW element.
   (cons new (remove pred lst)))

@@ -8,6 +8,7 @@
           define-lazy
           parse-arg-syntax
           push!
+          not-null?
           assq-get assv-get assoc-get
           =0 1+ 1-)
   (import (rnrs)

@@ -31,7 +31,6 @@
 (define-module (al backlight)
   #:use-module (ice-9 ftw)
   #:use-module (aux-utils)
-  #:use-module (al lists)
   #:use-module (al files)
   #:use-module (let-macros)
   #:export (backlight-available?

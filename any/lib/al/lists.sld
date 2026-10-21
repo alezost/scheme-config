@@ -1,6 +1,5 @@
 (define-library (al lists)
-  (export not-null?
-          replace
+  (export replace
           split
           map-indexed
           for-each-indexed
