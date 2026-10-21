@@ -24,9 +24,10 @@ LIBDIRS =				\
   $(LIBDIR)/al				\
 
 LIB_SCM_FILES = 				\
-  $(LIBDIR)/match.scm			\
+  $(LIBDIR)/match.scm				\
   $(LIBDIR)/aux-utils.scm			\
   $(LIBDIR)/let-macros.scm			\
+  $(LIBDIR)/al/al.lists.scm			\
   $(LIBDIR)/al/al.messages.scm
 
 all: lib bin

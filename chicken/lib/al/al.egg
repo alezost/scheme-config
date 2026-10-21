@@ -3,5 +3,6 @@
  (category misc)
  (license "GPL3")
  (components
+  (extension al.lists)
   (extension al.messages)
   ))
