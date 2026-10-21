@@ -28,6 +28,7 @@ LIB_SCM_FILES = 				\
   $(LIBDIR)/aux-utils.scm			\
   $(LIBDIR)/let-macros.scm			\
   $(LIBDIR)/al/al.lists.scm			\
+  $(LIBDIR)/al/al.strings.scm			\
   $(LIBDIR)/al/al.messages.scm
 
 all: lib bin

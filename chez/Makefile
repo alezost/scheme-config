@@ -64,6 +64,7 @@ LIB_SLS_FILES = 			\
   $(SRCLIBDIR)/xosd.sls			\
   $(SRCLIBDIR)/daemon.sls		\
   $(SRCLIBDIR)/al/lists.sls		\
+  $(SRCLIBDIR)/al/strings.sls		\
   $(SRCLIBDIR)/al/messages.sls		\
   $(SRCLIBDIR)/al/osd.sls
 
