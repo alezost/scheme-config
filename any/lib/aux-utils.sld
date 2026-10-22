@@ -8,7 +8,7 @@
           push!
           not-null?
           assq-get assv-get assoc-get
-          =0)
+          =0 >0 <0)
 
   (cond-expand
     (guile

@@ -136,6 +136,8 @@
   (and=> (assoc key alist) cdr))
 
 (define =0 zero?)
+(define >0 positive?)
+(define <0 negative?)
 
 (cond-expand
   ((or chez chicken)
