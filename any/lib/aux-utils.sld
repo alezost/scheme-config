@@ -1,7 +1,7 @@
-;;; aux-utils.sld -- Important auxiliary utilities
+;;; aux-utils.sld --- Important auxiliary utilities
 
 (define-library (aux-utils)
-  (export identity const
+  (export identity const ignore
           negate compose-left
           and=> and<=
           define-lazy

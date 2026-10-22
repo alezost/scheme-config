@@ -1,7 +1,7 @@
 ;;; aux-utils.sls --- Chez library for auxiliary utilities
 
 (library (aux-utils)
-  (export identity const
+  (export identity const ignore
           negate compose-left
           and=> and<=
           define-syntax-rule

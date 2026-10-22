@@ -32,6 +32,8 @@
 (define (const value)
   (lambda args value))
 
+(define ignore (const #f))
+
 (define (negate proc)
   (lambda args
     (not (apply proc args))))
