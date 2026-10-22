@@ -23,6 +23,7 @@ LIB_SLD_FILES = 			\
   $(LIBDIR)/drecords.sld		\
   $(LIBDIR)/al/lists.sld		\
   $(LIBDIR)/al/strings.sld		\
+  $(LIBDIR)/al/misc.sld			\
   $(LIBDIR)/al/messages.sld		\
   $(LIBDIR)/al/osd.sld
 LIB_GO_FILES = $(LIB_SLD_FILES:%.sld=%.go)
