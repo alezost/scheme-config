@@ -6,6 +6,7 @@
   (extension al.lists)
   (extension al.strings)
   (extension al.files)
+  (extension al.places)
   (extension al.misc)
   (extension al.messages)
   ))

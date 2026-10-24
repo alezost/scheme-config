@@ -66,6 +66,7 @@ LIB_SLS_FILES = 			\
   $(SRCLIBDIR)/al/lists.sls		\
   $(SRCLIBDIR)/al/strings.sls		\
   $(SRCLIBDIR)/al/files.sls		\
+  $(SRCLIBDIR)/al/places.sls		\
   $(SRCLIBDIR)/al/misc.sls		\
   $(SRCLIBDIR)/al/messages.sls		\
   $(SRCLIBDIR)/al/osd.sls
