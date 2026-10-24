@@ -23,21 +23,9 @@ LIBDIRS =				\
   $(LIBDIR)  				\
   $(LIBDIR)/al				\
 
-LIB_SCM_FILES = 				\
-  $(LIBDIR)/match.scm				\
-  $(LIBDIR)/aux-utils.scm			\
-  $(LIBDIR)/let-macros.scm			\
-  $(LIBDIR)/al/al.lists.scm			\
-  $(LIBDIR)/al/al.strings.scm			\
-  $(LIBDIR)/al/al.misc.scm			\
-  $(LIBDIR)/al/al.files.scm			\
-  $(LIBDIR)/al/files.chicken.scm		\
-  $(LIBDIR)/al/al.places.scm			\
-  $(LIBDIR)/al/al.messages.scm
-
 all: lib bin
 
-lib: $(LIB_SCM_FILES)
+lib:
 	@for dir in $(LIBDIRS); do \
 	  printf "⏵ Building $$dir ...\n" ; \
 	  cd "$$dir" && \
