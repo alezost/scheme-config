@@ -29,6 +29,8 @@ LIB_SCM_FILES = 				\
   $(LIBDIR)/let-macros.scm			\
   $(LIBDIR)/al/al.lists.scm			\
   $(LIBDIR)/al/al.strings.scm			\
+  $(LIBDIR)/al/al.files.scm			\
+  $(LIBDIR)/al/files.chicken.scm		\
   $(LIBDIR)/al/al.misc.scm			\
   $(LIBDIR)/al/al.messages.scm
 

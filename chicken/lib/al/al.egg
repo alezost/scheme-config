@@ -5,6 +5,7 @@
  (components
   (extension al.lists)
   (extension al.strings)
+  (extension al.files)
   (extension al.misc)
   (extension al.messages)
   ))
