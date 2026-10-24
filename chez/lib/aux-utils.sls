@@ -8,6 +8,7 @@
   (export identity const ignore
           negate compose-left
           and=> and<=
+          with-error->false
           define-syntax-rule
           define-lazy
           parse-arg-syntax

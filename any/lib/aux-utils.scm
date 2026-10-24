@@ -97,6 +97,10 @@
                   (loop (cdr procs)))))
        value))
 
+(define-syntax-rule (with-error->false body ...)
+  (guard (c (else #f))
+    body ...))
+
 (define-syntax-rule (define-lazy name body ...)
   ;; Define NAME thunk that will evaluate BODY once (on the first call).
   ;; NAME will return result of the first evaluation on subsequent calls

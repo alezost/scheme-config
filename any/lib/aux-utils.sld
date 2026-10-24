@@ -4,6 +4,7 @@
   (export identity const ignore
           negate compose-left
           and=> and<=
+          with-error->false
           define-lazy
           push!
           not-null?
@@ -12,7 +13,8 @@
 
   (cond-expand
     (guile
-     (import (guile))
+     (import (only (scheme base) guard)
+             (guile))
      (begin (re-export define-syntax-rule
                        1+ 1-)))
 
@@ -33,6 +35,7 @@
                  (,(rename 'syntax-rules) ()
                   ((,(rename '_) ,@args)
                    (,(rename 'begin) ,@body))))))))))))
+
   (include "aux-utils.code.scm"))
 
 ;;; aux-utils.sld ends here
