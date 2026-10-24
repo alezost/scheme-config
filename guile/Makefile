@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+.SECONDEXPANSION:
+
 LIBDIR = $(CURDIR)/lib
 LIB_SLD_FILES = 			\
   $(LIBDIR)/match.sld			\
@@ -48,7 +50,9 @@ all: lib
 
 lib: $(LIB_GO_FILES)
 
-$(LIB_GO_FILES): %.go: %.sld
+$(LIBDIR)/%.go: $(LIBDIR)/%.sld \
+		$$(wildcard $(LIBDIR)/%.scm) \
+		$$(wildcard $(LIBDIR)/%.guile.scm)
 	@cd $(LIBDIR) && \
 	$(GUILEC_ENV) guild compile $(GUILEC_OPTS) --output=$@ $<
 
