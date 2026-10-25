@@ -26,17 +26,20 @@
 
 ;;; Code:
 
-(define (identity value)
-  value)
+(cond-expand
+  (guile)
+  (else
+   (define (identity value)
+     value)
 
-(define (const value)
-  (lambda args value))
+   (define (const value)
+     (lambda args value))
 
-(define ignore (const #f))
+   (define ignore (const #f))
 
-(define (negate proc)
-  (lambda args
-    (not (apply proc args))))
+   (define (negate proc)
+     (lambda args
+       (not (apply proc args))))))
 
 (define (compose-left proc . procedures)
   ;; Compose PROC with PROCEDURES from left to right.
