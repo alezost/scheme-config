@@ -29,6 +29,7 @@ LIB_SLD_FILES = 			\
   $(LIBDIR)/al/files.sld		\
   $(LIBDIR)/al/places.sld		\
   $(LIBDIR)/al/messages.sld		\
+  $(LIBDIR)/al/backlight.sld		\
   $(LIBDIR)/al/osd.sld
 LIB_GO_FILES = $(LIB_SLD_FILES:%.sld=%.go)
 

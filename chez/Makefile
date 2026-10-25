@@ -69,6 +69,7 @@ LIB_SLS_FILES = 			\
   $(SRCLIBDIR)/al/files.sls		\
   $(SRCLIBDIR)/al/places.sls		\
   $(SRCLIBDIR)/al/messages.sls		\
+  $(SRCLIBDIR)/al/backlight.sls		\
   $(SRCLIBDIR)/al/osd.sls
 
 LIB_SO_FILES = $(LIB_SLS_FILES:$(SRCLIBDIR)/%.sls=$(BLDLIBDIR)/%.so)
