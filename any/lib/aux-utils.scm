@@ -32,6 +32,9 @@
    (define (identity value)
      value)
 
+   (define (->bool value)
+     (and value #t))
+
    (define (const value)
      (lambda args value))
 

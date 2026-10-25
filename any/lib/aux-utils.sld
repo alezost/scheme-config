@@ -1,7 +1,7 @@
-;;; aux-utils.sld --- Important auxiliary utilities
+;;; aux-utils.sld --- R7RS library with auxiliary utilities
 
 (define-library (aux-utils)
-  (export identity const ignore
+  (export identity ->bool const ignore
           negate compose-left
           and=> and<=
           with-error->false

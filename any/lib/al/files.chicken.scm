@@ -27,8 +27,7 @@
 
 (define (file-exists?? filename)
   (with-error->false
-    (and (file-stat filename #t)
-         #t)))
+    (->bool (file-stat filename #t))))
 
 (define canonicalize-file-name
   (foreign-lambda*

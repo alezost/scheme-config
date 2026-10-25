@@ -1,11 +1,11 @@
-;;; aux-utils.sls --- Chez library for auxiliary utilities
+;;; aux-utils.sls --- R6RS library with auxiliary utilities
 
 ;; Without this (#!r6rs is used by default), Chez complains on `1+' and
 ;; `1-' names.
 #!chezscheme
 
 (library (aux-utils)
-  (export identity const ignore
+  (export identity ->bool const ignore
           negate compose-left
           and=> and<=
           with-error->false
