@@ -25,6 +25,11 @@
 (define file-name-extension pathname-extension)
 (define mkdir create-directory)
 
+(define (directory-files dir)
+  (or (with-error->false
+        (directory dir))
+      '()))
+
 (define (file-exists?? filename)
   (with-error->false
     (->bool (file-stat filename #t))))

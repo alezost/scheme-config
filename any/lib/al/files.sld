@@ -4,6 +4,9 @@
   (export symlink?
           executable?
           file-exists??
+          directory?
+          directory-files
+          subdirs
           build-file-name
           canonicalize-file-name
           file-name-directory

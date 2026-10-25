@@ -40,6 +40,30 @@
            first-part
            rest-parts))))
 
+(define subdirs
+  ;; (subdirs DIRECTORY [FULL-NAMES?])
+  ;;
+  ;; Return list of all sub-directories of DIRECTORY.
+  ;;
+  ;; If FULL-NAMES? is #f, return only dir names i.e., relative names
+  ;; without DIRECTORY itself.  Otherwise, return full absolute names.
+  ;;
+  ;; Return empty list if DIRECTORY does not exist.
+  (case-lambda
+    ((dir) (subdirs dir #f))
+    ((dir full-names?)
+     (let loop ((names (directory-files dir))
+                (res '()))
+       (match names
+         (() res)
+         ((name rest …)
+          (let ((full-name (build-file-name dir name)))
+            (loop rest
+                  (if (directory? full-name)
+                    (cons (if full-names? full-name name)
+                          res)
+                    res)))))))))
+
 (define (mkdir-with-parents directory)
   ;; Create DIRECTORY and all its ancestors.
   (unless (file-exists? directory)

@@ -4,6 +4,9 @@
   (export symlink?
           executable?
           file-exists??
+          directory?
+          directory-files
+          subdirs
           build-file-name
           canonicalize-file-name
           file-name-directory
@@ -21,6 +24,7 @@
           (only (chezscheme)
                 include
                 path-parent path-extension path-root
+                file-directory? directory-list
                 file-symbolic-link? mkdir
                 foreign-procedure)
           (srfi :0)

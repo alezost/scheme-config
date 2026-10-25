@@ -32,6 +32,18 @@
 
 (define file-name-directory dirname)
 
+(define (directory? file)
+  "Return #t if FILE is directory."
+  (with-error->false
+    (file-is-directory? file)))
+
+(define (directory-files directory)
+  "Return list of names of all files from DIRECTORY.
+The list includes sub-directories."
+  (or (with-error->false
+        (scandir directory (negate (cut member <> '("." "..")))))
+      '()))
+
 (define (symlink? file)
   "Return #t if FILE is a symbolic link."
   (eq? (stat:type (lstat file)) 'symlink))
@@ -130,29 +142,6 @@ Return #f if none of the FILES exists."
        body ...)
      (lambda ()
        (chdir init)))))
-
-(define* (subdirs dir #:optional full-names?)
-  "Return list of all sub-directories of DIR.
-
-If FULL-NAMES? is #f, return only dir names i.e., relative names without
-DIR itself.  Otherwise, return full absolute names.
-
-Return empty list if DIR does not exist."
-  (define (full-name name)
-    (build-file-name dir name))
-
-  (define (subdir? name)
-    (and (not (member name '("." "..")))
-         (catch 'system-error
-           (lambda ()
-             (file-is-directory? (full-name name)))
-           ignore)))
-
-  (let ((names (or (scandir dir subdir?)
-                   '())))
-    (if full-names?
-      (map full-name names)
-      names)))
 
 (define* (find-files dir regexp #:key enter-tree? follow-links?)
   "Return list of files in DIR whose basenames match REGEXP.

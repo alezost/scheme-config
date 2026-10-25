@@ -25,6 +25,15 @@
 (define file-name-extension path-extension)
 (define file-name-sans-extension path-root)
 
+(define (directory? file)
+  (with-error->false
+    (file-directory? file)))
+
+(define (directory-files directory)
+  (or (with-error->false
+        (directory-list directory))
+      '()))
+
 (define read-line
   (case-lambda
     (()     (get-line (current-input-port)))
