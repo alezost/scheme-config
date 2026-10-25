@@ -5,22 +5,19 @@
           negate compose-left
           and=> and<=
           with-error->false
+          define-syntax-rule
           define-lazy
           push!
           not-null?
           assq-get assv-get assoc-get
-          =0 >0 <0)
+          =0 >0 <0 1+ 1-)
 
   (cond-expand
     (guile
      (import (only (scheme base) guard)
-             (guile))
-     (begin (re-export define-syntax-rule
-                       1+ 1-)))
+             (guile)))
 
     (chicken
-     (export define-syntax-rule
-             1+ 1-)
      (import (scheme base)
              (only (chicken base) add1 sub1)
              (chicken syntax))
