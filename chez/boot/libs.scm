@@ -4,6 +4,7 @@
 
 (define (load-libs)
   (load-shared-object "libc.so.6")
+  (load-shared-object "libpulse.so")
   (load-shared-object "libxosd.so"))
 
 (scheme-start
