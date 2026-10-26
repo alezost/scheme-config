@@ -2,4 +2,5 @@
  (author "Alex Kost")
  (category misc)
  (license "GPL3")
+ (dependencies aux-utils)
  (components (extension let-macros)))
