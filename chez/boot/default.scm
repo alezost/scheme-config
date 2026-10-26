@@ -14,7 +14,7 @@
                        (num  (substring name 1 (string-length name)))
                        (new-name (string->symbol
                                   (string-append "srfi-" num))))
-                  (list 'srfi new-name))
+                  (cons* 'srfi new-name (cddr library)))
                 library)))
      (default-library-search-handler who lib directories extensions))))
 
