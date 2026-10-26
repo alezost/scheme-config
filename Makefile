@@ -20,17 +20,23 @@ LIB_SLD_FILES = $(shell find $(LIBDIR) -name '*.sld')
 
 IMPLS = guile chez chicken
 
-all: lib $(IMPLS)
+all: lib-files $(IMPLS)
 
-lib: $(LIB_SLD_FILES)
+lib-files: $(LIB_SLD_FILES)
 
 $(LIB_SLD_FILES): %.sld: %.scm
 	@touch "$@"
 
-$(IMPLS): lib
+$(IMPLS): lib-files
 	@printf "⏺ Building '$@' sub-directory ...\n"
 	cd "$@" && $(MAKE)
 
-.PHONY: lib $(IMPLS)
+lib clean clean-lib:
+	@for dir in $(IMPLS); do \
+	  printf "⏺ Making $$dir '$@' ...\n"; \
+	  $(MAKE) -C "$$dir" $@; \
+	done
+
+.PHONY: all lib-files $(IMPLS) clean clean-lib
 
 # Makefile ends here
