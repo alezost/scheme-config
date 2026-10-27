@@ -1,0 +1,65 @@
+(2026-09-28)
+
+R6RS-compatible (but not R7RS-compatible!) implementation
+
+** Fetching the source
+
+#+begin_src sh
+# git repo is huge, 1.4 Gb according to:
+curl https://api.github.com/repos/cisco/ChezScheme | grep size
+
+# so getting the latest release from
+# <https://github.com/cisco/ChezScheme/releases> instead:
+cd ~/src/scheme
+wget https://github.com/cisco/ChezScheme/releases/download/v10.4.1/csv10.4.1.tar.gz
+#+end_src
+
+*Note:* the tarball (and its root directory) has "csv<version>" name.  I renamed it to "chez-<version>".
+
+*** External libraries
+
+#+begin_src sh
+# the main collection of many SRFIs
+git clone https://github.com/arcfide/chez-srfi.git
+# another collection of some SRFIs and other packages (including "matchable")
+git clone https://github.com/ovenpasta/thunderchez.git
+
+# add a line like this one to ~/.bash_profile
+export CHEZSCHEMELIBDIRS="$HOME/src/scheme/chez-srfi:$HOME/src/scheme/thunderchez"
+#+end_src
+
+Code from "thunderchez" can be used directly like this:
+#+begin_src scheme
+(import
+ (matchable)
+ (srfi s1 lists))
+#+end_src
+
+SRFIs from "chez-srfi" are placed in weirdly named directories.  There is a script to make ":N" symlinks for all these names like this:
+
+#+begin_src sh
+cd ~/src/scheme/chez-srfi
+./link-dirs.chezscheme.sps
+#+end_src
+
+Also there is [[~/src/scheme/chez-srfi/install.chezscheme.sps]] script to install these SRFIs.
+
+*Important* However, the problem with both repos is that I want to use (srfi :1) name and I have to use something like (srfi :1 lists) instead.  So I decided to copy SRFIs I need to my "scheme-config" repo.
+
+** Building and installing
+
+#+begin_src sh
+cd ~/src/scheme/chez*
+./configure --prefix=$HOME/.local
+make
+sudo pacman -S texlive-latex texlive-latexrecommended  # needed to make docs
+make docs
+make install
+make install-docs
+#+end_src
+
+Also pdf manual can be downloaded from:
+
+#+begin_src sh
+wget https://cisco.github.io/ChezScheme/csug/csug.pdf
+#+end_src

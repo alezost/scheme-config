@@ -1,0 +1,9 @@
+
+Common info on everything related to Scheme:
+https://www.scheme.org/
+
+Source of SRFIs:
+https://srfi.schemers.org/
+
+General package manager for Scheme libraries:
+https://akkuscm.org/

@@ -1,0 +1,40 @@
+(2026-09-27)
+
+Very fast but after struggling with it for a day, I decided to abandon it (therefore, "gerbil", another Scheme implementation build on gambit). Downsides:
+
+- bad integration with Geiser: only autodoc works; no completions, no source locations, no documentation.
+
+- there is info manual but it is very limited, many things are not documented
+
+- no good source of external libraries
+
+- (main reason) syntax-rules is not full-featured, there are edge cases where "..." is not expanded correctly.  Because of this, the classic Shinn's "match" (aka "matchable" as it is called in Chicken) library (implemented in R7RS) does not work. The built-in "_match" and "termite" Gambit libraries do not match even basic patterns (and of course they are not documented).
+
+** Fetching the source
+
+#+begin_src sh
+git clone --depth=1 https://github.com/gambit/gambit.git ~/src/scheme/gambit
+#+end_src
+
+** Building and installing
+
+See [[~/src/scheme/gambit/INSTALL.txt]] for details about configure options
+
+#+begin_src sh
+cd ~/src/scheme/gambit
+./configure --prefix=$HOME/.local --enable-single-host --enable-march=native --enable-dynamic-clib --enable-trust-c-tco
+make -j2
+make doc
+make install
+#+end_src
+
+** Installing extra packages
+
+[[~/.gambit_userlib/]] is the default directory where Gambit searches for user libraries.
+
+There is no official source of additional SRFIs.  So you have to get SRFI sources (mainly from https://srfi.schemers.org/), adjust them if needed, make a library (in sld file) and put into [[~/.gambit_userlib/]].  A good source of more or less portable libraries is the following Taylan's repository ([[~/src/scheme/scheme-srfis/]]):
+
+#+begin_src sh
+cd ~/src/scheme
+git clone https://github.com/TaylanUB/scheme-srfis
+#+end_src

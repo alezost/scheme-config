@@ -1,0 +1,51 @@
+(2026-09-17)
+
+R7RS-compatible implementation producing rather fast compiled
+executables (made with "csc") and very slow for non-compiled scripts
+(run with "csi").
+
+** Fetching the source
+
+#+begin_src sh
+git clone --depth=1 git://code.call-cc.org/chicken-core ~/src/scheme/chicken
+git clone --depth=1 git://code.call-cc.org/eggs-6-latest ~/src/scheme/chicken-eggs
+#+end_src
+
+** Building and installing
+
+#+begin_src sh
+cd ~/src/scheme/chicken
+./configure --prefix $HOME/.local
+make
+make install
+#+end_src
+
+*** Building documentation
+html documentation can be generated with "manual-labor" egg, so install this egg at first and build the doc into [[~/src/scheme/chicken/manual-html]] dir (it is gitignored in the chicken repo):
+
+#+begin_src sh
+chicken-install -location ~/src/scheme/chicken-eggs manual-labor
+csi -script ~/.cache/chicken-install/manual-labor/manual-labor-cmd.scm ~/src/scheme/chicken/manual ~/src/scheme/chicken/manual-html
+#+end_src
+
+** Installing eggs (chicken packages)
+Packages required for Geiser plus some other useful eggs:
+
+#+begin_src sh
+chicken-install -location ~/src/scheme/chicken-eggs apropos chicken-doc srfi-1 srfi-13 srfi-18 srfi-37 srfi-48 srfi-115
+#+end_src
+
+** Configuring "check-doc"
+
+"check-doc" egg is required for Geiser.  Since I install Chicken to
+"$HOME/.local" (see above), I decided to install documentation there as
+well.
+
+#+begin_src sh
+cd $HOME/.local/share/chicken/
+wget https://call-cc.org/tarballs/chicken-doc/chicken-doc-repo-6.tgz
+tar -xf chicken-doc-repo-6.tgz
+
+# add this line to ~/.bash_profile
+export CHICKEN_DOC_REPOSITORY="$HOME/.local/share/chicken/chicken-doc"
+#+end_src

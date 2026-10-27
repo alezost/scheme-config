@@ -1,6 +1,6 @@
-notes.org
 tmp/
 bin/
+*.pdf
 *.go
 *.so
 chicken/**/*.o
