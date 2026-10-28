@@ -141,7 +141,7 @@ info manual."
   ;; Return the number of digits in INTEGER.
   (cond
    ((>0 integer)
-    (1+ (inexact->exact (floor (log10 integer)))))
+    (inc (inexact->exact (floor (log10 integer)))))
    ((=0 integer) 1)
    (else (digits (- integer)))))
 

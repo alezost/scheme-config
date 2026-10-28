@@ -51,7 +51,7 @@
   ;; Helper for `map-indexed' and similar procedures.
   (let ((index -1))
     (iterate (lambda args
-               (set! index (1+ index))
+               (set! index (inc index))
                (apply proc index args))
              lists ...)))
 

@@ -1,9 +1,5 @@
 ;;; aux-utils.sls --- R6RS library with auxiliary utilities
 
-;; Without this (#!r6rs is used by default), Chez complains on `1+' and
-;; `1-' names.
-#!chezscheme
-
 (library (aux-utils)
   (export identity ->bool const ignore
           negate compose-left
@@ -15,7 +11,7 @@
           push!
           not-null?
           assq-get assv-get assoc-get
-          =0 >0 <0 1+ 1-)
+          =0 >0 <0 inc dec)
   (import (rnrs)
           (only (chezscheme)
                 include

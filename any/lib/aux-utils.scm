@@ -150,9 +150,16 @@
 (define <0 negative?)
 
 (cond-expand
-  ((or chez chicken)
-   (define 1+ add1)
-   (define 1- sub1))
-  (else))
+  (guile
+   (define inc 1+)
+   (define dec 1-))
+
+  ((or chez chicken racket)
+   (define inc add1)
+   (define dec sub1))
+
+  (else
+   (define (inc n) (+ n 1))
+   (define (dec n) (- n 1))))
 
 ;;; aux-utils.scm ends here
