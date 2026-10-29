@@ -23,6 +23,8 @@ LIB_SLD_FILES = 			\
   $(LIBDIR)/aux-utils.sld		\
   $(LIBDIR)/let-macros.sld		\
   $(LIBDIR)/drecords.sld		\
+  $(LIBDIR)/srfi/srfi-115/boundary.sld	\
+  $(LIBDIR)/srfi/srfi-115.sld		\
   $(LIBDIR)/al/lists.sld		\
   $(LIBDIR)/al/strings.sld		\
   $(LIBDIR)/al/misc.sld			\

@@ -1,0 +1,13 @@
+** SRFI libraries naming
+Having just integer names ("N.sld" files and "N" directories) in [[file:lib/srfi][srfi]]
+directory of =GUILE_LOAD_PATH= is unreliable: compilation may fail with
+a strange error (e.g., "unbound variable" or "re-exporting local
+variable").  So all the files there should be prefixed with "srfi-".
+
+".sld" files can define =(srfi N)= libraries however, "import"
+declaration may also lead to failure if =(srfi N foo)= is used.
+Importing =(srfi srfi-N foo)= should work in this case.
+
+Side note: it looks like Guile does not support names starting with an
+integer.  For example, compiling "foo/N.sld" library fails with "source
+expression failed to match any pattern in form (foo N)" error.
