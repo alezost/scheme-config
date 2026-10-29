@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+.SECONDEXPANSION:
+
 LIBDIR = $(CURDIR)/any/lib
 LIB_SLD_FILES = $(shell find $(LIBDIR) -name '*.sld')
 
@@ -24,8 +26,8 @@ all: lib-files $(IMPLS)
 
 lib-files: $(LIB_SLD_FILES)
 
-$(LIB_SLD_FILES): %.sld: %.scm
-	@touch "$@"
+$(LIBDIR)/%.sld: $$(wildcard $(LIBDIR)/%.scm)
+	touch "$@"
 
 $(IMPLS): lib-files
 	@printf "⏺ Building '$@' sub-directory ...\n"
