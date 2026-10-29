@@ -1,9 +1,8 @@
-;;; processes.scm --- Utilities for working with processes
+;;; processes.guile.scm --- Guile-specific utilities for working with processes
 
 ;; Copyright © 2016, 2018 Alex Kost
 
 ;; Author: Alex Kost <alezost@gmail.com>
-;; Created: 19 Mar 2016
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -18,20 +17,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;;; Commentary:
-
-;; This file provides code related to processes.
-
 ;;; Code:
-
-(define-module (al processes)
-  #:use-module (ice-9 rdelim)
-  #:use-module (ice-9 popen)
-  #:export (environment-excursion
-            with-environment-excursion
-            system*-output
-            system*-no-output
-            process-exists?))
 
 (define (environment-excursion env-thunk body-thunk)
   "Run BODY-THUNK with the current environment set by ENV-THUNK."
@@ -71,4 +57,4 @@ If EXACT? is #t, check processes which exactly match REGEXP."
     (read-string port)
     (close-pipe port)))
 
-;;; processes.scm ends here
+;;; processes.guile.scm ends here
