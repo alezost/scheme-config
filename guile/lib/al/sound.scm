@@ -29,23 +29,18 @@
   #:use-module (ice-9 format)
   #:use-module (srfi srfi-115)
   #:use-module (al processes)
-  #:use-module (al records)
+  #:use-module (drecords)
   #:use-module (let-macros)
-  #:export (make-sound
-            sound*
+  #:export (sound
             sound?
             sound-volume
-            sound-muted?
+            sound-state
             get-sound
             set-sound
             increase-volume
             decrease-volume))
 
-(define-record-type* <sound>
-  make-sound sound*
-  sound?
-  (volume sound-volume #f)      ; number from 0 to 100
-  (muted? sound-muted? #f))     ; on or off
+(define-drecord sound volume state)
 
 (define %amixer-control "Master")
 
@@ -77,40 +72,52 @@ Simple mixer control 'Master',0
 |#
 
 (define parse-amixer-output
+  ;; (parse-amixer-output OUTPUT)
+  ;;
+  ;; Parse 'amixer' OUTPUT and return sound record.
+  ;;
+  ;; Return #f if OUTPUT cannot be parsed.  Otherwise, return sound
+  ;; record for the current sound value, where `volume' field is an
+  ;; integer from 0 to 100, `state' field is `on' (if sound is on) or
+  ;; `off' (if sound is off) symbol.
   (let ((re (rx "Playback " (+ digit)
                 " [" ($ (+ digit)) "%]"
                 (+ any)
                 "[" ($ (or "on" "off")) "]")))
     (lambda (output)
-      "Parse 'amixer' OUTPUT and return <sound> record.
-Return #f if OUTPUT cannot be parsed."
       (when-let ((match (regexp-search re output)))
-        (sound*
-         #:volume (string->number (regexp-match-submatch match 1))
-         #:muted? (string=? "off" (regexp-match-submatch match 2)))))))
+        (sound
+         (volume (string->number (regexp-match-submatch match 1)))
+         (state  (string->symbol (regexp-match-submatch match 2))))))))
 
 (define (get-sound)
-  "Return <sound> structure for the current sound value."
+  ;; Return sound record for the current sound value.
+  ;; See `parse-amixer-output' for details.
   (parse-amixer-output
    (call-amixer "get" %amixer-control)))
 
-(define* (set-sound #:key volume mute #:rest args)
-  "Set sound according to VOLUME and MUTE arguments.
-
-VOLUME should be either:
-
-  - an integer from 0 to 100,
-
-  - a string in \"sN\" format, where \"N\" is an integer and \"s\" is an
-    optional sign i.e., \"s\" is either:
-
-    \"+\": to increase volume by N,
-    \"-\": to decrease volume by N,
-    empty string: to set volume to N.
-
-MUTE should be either #f, #t, or `toggle' symbol.
-
-Return <sound> structure for the current sound value."
+(define (set-sound snd)
+  ;; Set sound according to SND sound record.
+  ;;
+  ;; SND `volume' field should be either:
+  ;;
+  ;;  - #f if volume value should not be changed,
+  ;;
+  ;;  - an integer from 0 to 100,
+  ;;
+  ;;  - a string in "sN" format, where "N" is an integer and "s" is an
+  ;;    optional sign i.e., "s" is either:
+  ;;
+  ;;    "+": to increase volume by N,
+  ;;    "-": to decrease volume by N,
+  ;;    empty string: to set volume to N.
+  ;;
+  ;; SND `state' field should be either #f (if state value should not be
+  ;; changed), `on' (to turn sound on), `off' (to turn sound off), or
+  ;; `toggle' string or symbol.
+  ;;
+  ;; Return sound record for the current sound value.
+  ;; See `parse-amixer-output' for details.
   (define (->volume-arg vol)
     (cond
      ((integer? vol)
@@ -127,14 +134,12 @@ Return <sound> structure for the current sound value."
      (else #f)))
 
   (define (->mute-arg mute)
-    (if mute
-      (if (eq? #t mute) "off" "toggle")
-      "on"))
+    (if (symbol? mute)
+      (symbol->string mute)
+      mute))
 
-  (let* ((volume-arg (and (memq #:volume args)
-                          (->volume-arg volume)))
-         (mute-arg   (and (memq #:mute args)
-                          (->mute-arg mute)))
+  (let* ((volume-arg (->volume-arg (sound-volume snd)))
+         (mute-arg   (->mute-arg   (sound-state snd)))
          (args       (filter identity
                              (list volume-arg mute-arg))))
     (parse-amixer-output
@@ -143,11 +148,13 @@ Return <sound> structure for the current sound value."
 (define (increase-volume percentage)
   "Increase sound volume by PERCENTAGE.
 Return percentage of the current volume."
-  (set-sound #:volume (string-append "+" (number->string percentage))))
+  (set-sound
+   (sound (volume (string-append "+" (number->string percentage))))))
 
 (define (decrease-volume percentage)
   "Decrease sound volume by PERCENTAGE.
 Return percentage of the current volume."
-  (set-sound #:volume (string-append "-" (number->string percentage))))
+  (set-sound
+   (sound (volume (string-append "-" (number->string percentage))))))
 
 ;;; sound.scm ends here
