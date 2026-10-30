@@ -25,27 +25,13 @@
 
 ;;; Code:
 
-(define-module (al sound)
-  #:use-module (ice-9 format)
-  #:use-module (srfi srfi-115)
-  #:use-module (al processes)
-  #:use-module (drecords)
-  #:use-module (let-macros)
-  #:export (sound
-            sound?
-            sound-volume
-            sound-state
-            get-sound
-            set-sound
-            increase-volume
-            decrease-volume))
-
 (define-drecord sound volume state)
 
 (define %amixer-control "Master")
 
 (define (call-amixer . args)
-  "Call 'amixer' with ARGS and return its output."
+  ;; Call 'amixer' with ARGS and return its output.
+
   ;; Use "-D hw:0" to avoid PulseAudio layer and connect directly to
   ;; ALSA device.  Downsides: non-logarithmic percent scale, volume step
   ;; is big (bigger than 1%), unmuting doesn't work.
@@ -146,14 +132,14 @@ Simple mixer control 'Master',0
      (apply call-amixer "set" %amixer-control args))))
 
 (define (increase-volume percentage)
-  "Increase sound volume by PERCENTAGE.
-Return percentage of the current volume."
+  ;; Increase sound volume by PERCENTAGE.
+  ;; Return percentage of the current volume.
   (set-sound
    (sound (volume (string-append "+" (number->string percentage))))))
 
 (define (decrease-volume percentage)
-  "Decrease sound volume by PERCENTAGE.
-Return percentage of the current volume."
+  ;; Decrease sound volume by PERCENTAGE.
+  ;; Return percentage of the current volume.
   (set-sound
    (sound (volume (string-append "-" (number->string percentage))))))
 
