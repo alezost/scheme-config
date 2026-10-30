@@ -116,10 +116,12 @@ Return <sound> structure for the current sound value."
      ((integer? vol)
       (string-append (number->string vol) "%"))
      ((string? vol)
-      (let ((first-char (car (string->list vol))))
+      (let ((first-char (string-ref vol 0)))
         (case first-char
           ((#\+ #\-)
-           (format #f "~a%~c" (substring vol 1) first-char))
+           (format #f "~a%~c"
+                   (substring vol 1 (string-length vol))
+                   first-char))
           (else
            (string-append vol "%")))))
      (else #f)))
