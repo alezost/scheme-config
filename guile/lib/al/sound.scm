@@ -27,7 +27,7 @@
 
 (define-module (al sound)
   #:use-module (ice-9 format)
-  #:use-module (ice-9 regex)
+  #:use-module (srfi srfi-115)
   #:use-module (al processes)
   #:use-module (al records)
   #:use-module (let-macros)
@@ -58,16 +58,36 @@
   ;; (apply system*-output "amixer" "-D" "hw:0" args)
   (apply system*-output "amixer" args))
 
+#|
+Typical amixer output without Pulseaudio:
+
+Simple mixer control 'Master',0
+  Playback channels: Mono
+  Limits: Playback 0 - 87
+  Mono: Playback 73 [84%] [-10.50dB] [on]
+
+Typical amixer output with Pulseaudio:
+
+Simple mixer control 'Master',0
+  Playback channels: Front Left - Front Right
+  Limits: Playback 0 - 65536
+  Mono:
+  Front Left: Playback 43908 [67%] [on]
+  Front Right: Playback 43908 [67%] [on]
+|#
+
 (define parse-amixer-output
-  (let ((rx (make-regexp
-             "Playback [0-9]+ \\[([0-9]+)%\\].* \\[(on|off)\\]")))
+  (let ((re (rx "Playback " (+ digit)
+                " [" ($ (+ digit)) "%]"
+                (+ any)
+                "[" ($ (or "on" "off")) "]")))
     (lambda (output)
       "Parse 'amixer' OUTPUT and return <sound> record.
 Return #f if OUTPUT cannot be parsed."
-      (when-let ((match (regexp-exec rx output)))
+      (when-let ((match (regexp-search re output)))
         (sound*
-         #:volume (string->number (match:substring match 1))
-         #:muted? (string=? "off" (match:substring match 2)))))))
+         #:volume (string->number (regexp-match-submatch match 1))
+         #:muted? (string=? "off" (regexp-match-submatch match 2)))))))
 
 (define (get-sound)
   "Return <sound> structure for the current sound value."
