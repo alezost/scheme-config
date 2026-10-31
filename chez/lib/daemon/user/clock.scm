@@ -32,18 +32,30 @@
 
 (define display-clock
   (let ((delay (make-time 'time-duration 0 1)))
-    (lambda (osd)
-      (let loop ((start #t))
-        ;; Exit from the loop when OSD is hidden from the outside.
-        (when (or start (osd-displayed? osd))
-          (display-string-in-osd osd (format-current-time))
-          (sleep delay)
-          (loop #f))))))
+    (lambda ()
+      (let ((osd (clock-osd)))
+        (let loop ((start #t))
+          ;; Exit from the loop when OSD is hidden from the outside.
+          (when (or start (osd-displayed? osd))
+            (display-string-in-osd osd (format-current-time))
+            (sleep delay)
+            (loop #f)))))))
 
-(define (toggle-clock-osd)
-  (let ((osd (clock-osd)))
-    (if (osd-displayed? osd)
-      (hide-osd osd)
-      (fork-thread (lambda () (display-clock osd))))))
+(define (osd-clock . args)
+  (scheme->lisp
+   (match args
+     ((or () ("show"))
+      (fork-thread display-clock)
+      #t)
+     (("hide")
+      (hide-osd (clock-osd))
+      #f)
+     (("toggle")
+      (if (osd-displayed? (clock-osd))
+        (osd-clock "hide")
+        (osd-clock "show")))
+     (_
+      (display-error-in-main-osd
+       (format #f "Unknown arguments: ~a" args))))))
 
 ;;; clock.scm ends here

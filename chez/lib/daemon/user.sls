@@ -4,7 +4,7 @@
           osd-sound
           osd-backlight
           osd-text
-          toggle-clock-osd)
+          osd-clock)
   (import (al osd)
           (daemon user sound)
           (daemon user backlight)
