@@ -30,21 +30,20 @@
             (date-hour date)
             (date-minute date))))
 
-(define toggle-clock-osd
-  (let* ((cancel? #f)
-         (delay (make-time 'time-duration 0 1))
-         (display-clock
-          (lambda (osd)
-            (let loop ()
-              (unless cancel?
-                (display-string-in-osd osd (format-current-time))
-                (sleep delay)
-                (loop))))))
-    (lambda ()
-      (let ((osd (clock-osd)))
-        (if (osd-displayed? osd)
-          (begin (set! cancel? #t)
-                 (hide-osd osd))
-          (fork-thread (lambda () (display-clock osd))))))))
+(define display-clock
+  (let ((delay (make-time 'time-duration 0 1)))
+    (lambda (osd)
+      (let loop ((start #t))
+        ;; Exit from the loop when OSD is hidden from the outside.
+        (when (or start (osd-displayed? osd))
+          (display-string-in-osd osd (format-current-time))
+          (sleep delay)
+          (loop #f))))))
+
+(define (toggle-clock-osd)
+  (let ((osd (clock-osd)))
+    (if (osd-displayed? osd)
+      (hide-osd osd)
+      (fork-thread (lambda () (display-clock osd))))))
 
 ;;; clock.scm ends here
