@@ -60,7 +60,8 @@
              (parameterize ((current-output-port (current-error-port)))
                (display "Failed to load code from the FIFO file:\n")
                (display-condition condition)
-               (newline))))
+               (newline)
+               (print "evaluation error, look at chez-daemon output"))))
       (print (read-eval)))
     (loop)))
 
