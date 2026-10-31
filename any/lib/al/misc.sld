@@ -12,10 +12,9 @@
   (import (scheme r5rs)
           (scheme process-context)
           (scheme case-lambda)
-          (only (srfi 13) string-tokenize)
-          (only (srfi 14) char-set char-set-complement)
           (let-macros)
-          (aux-utils))
+          (aux-utils)
+          (al strings))
 
   (cond-expand
     (guile

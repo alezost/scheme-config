@@ -20,8 +20,6 @@
   (import (scheme case-lambda)
           (scheme file)
           (only (srfi 1) fold find filter-map)
-          (only (srfi 13) string-tokenize)
-          (only (srfi 14) char-set char-set-complement)
           (match)
           (aux-utils)
           (al strings))

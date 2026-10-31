@@ -29,8 +29,6 @@
                 foreign-procedure)
           (srfi :0)
           (only (srfi :1) fold)
-          (only (srfi :13) string-tokenize)
-          (only (srfi :14) char-set char-set-complement)
           (srfi :26)
           (match)
           (aux-utils)

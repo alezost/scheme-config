@@ -22,10 +22,9 @@
                 current-error-port
                 make-output-port)
           (srfi :0)
-          (only (srfi :13) string-tokenize)
-          (only (srfi :14) char-set char-set-complement)
           (let-macros)
-          (aux-utils))
+          (aux-utils)
+          (al strings))
   (include "misc.scm"))
 
 ;;; misc.sls ends here

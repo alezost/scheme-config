@@ -127,8 +127,7 @@ info manual."
     ((path)
      (split-path path #\:))
     ((path separator)
-     (string-tokenize path (char-set-complement
-                            (char-set separator))))))
+     (split-string path separator))))
 
 (define (scheme->lisp value)
   ;; Convert Scheme value to Lisp value.

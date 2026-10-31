@@ -67,16 +67,15 @@
 (define (mkdir-with-parents directory)
   ;; Create DIRECTORY and all its ancestors.
   (unless (file-exists? directory)
-    (let ((not-slash (char-set-complement (char-set #\/))))
-      (let loop ((components (string-tokenize directory not-slash))
-                 (root ""))
-        (match components
-          ((head tail …)
-           (let ((file (build-file-name root head)))
-             (unless (file-exists? file)
-               (mkdir file))
-             (loop tail file)))
-          (_ #t))))))
+    (let loop ((components (split-string directory #\/))
+               (root ""))
+      (match components
+        ((head tail …)
+         (let ((file (build-file-name root head)))
+           (unless (file-exists? file)
+             (mkdir file))
+           (loop tail file)))
+        (_ #t)))))
 
 (define (copy-file* old-name new-name)
   ;; Copy OLD-NAME file to NEW-NAME.

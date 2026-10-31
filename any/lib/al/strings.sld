@@ -5,11 +5,13 @@
           string-trim-both
           mapconcat
           comma-separated
+          split-string
           min-string)
   (import (scheme base)
           (scheme case-lambda)
           (only (srfi 1) fold reduce)
           (srfi 13)
+          (srfi 14)
           (match)
           (aux-utils))
   (cond-expand

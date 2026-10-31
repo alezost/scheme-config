@@ -60,6 +60,25 @@
   ;; Return string by concatenating STRINGS with commas.
   (mapconcat identity strings ","))
 
+(define split-string
+  ;; (split-string STRING [SEPARATOR])
+  ;;
+  ;; Split STRING into a list of substrings with SEPARATOR character
+  ;; (#\space by default).
+  ;;
+  ;; XXX Unlike Guile's `string-split', this procedure does not produce
+  ;; empty string between separators e.g.,
+  ;;
+  ;;   (split-string "foo-bar--zoo" #\-)
+  ;;
+  ;; returns ("foo" "bar" "zoo"), not ("foo" "bar" "" "zoo").
+  (case-lambda
+    ((str)
+     (split-string str #\space))
+    ((str separator)
+     (string-tokenize str (char-set-complement
+                           (char-set separator))))))
+
 (define (min-string . strings)
   ;; Like `min' but performed on STRINGS.
   ;; Return #f if STRINGS are not specified.
