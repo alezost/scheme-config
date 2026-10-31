@@ -1,0 +1,6 @@
+(library (daemon user clock)
+  (export toggle-clock-osd)
+  (import (chezscheme)
+          (xosd)
+          (al osd))
+  (include "clock.scm"))

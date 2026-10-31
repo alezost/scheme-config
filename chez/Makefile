@@ -65,7 +65,6 @@ LIB_SLS_FILES = 				\
   $(SRCLIBDIR)/srfi/srfi-115/boundary.sls	\
   $(SRCLIBDIR)/srfi/srfi-115.sls		\
   $(SRCLIBDIR)/xosd.sls				\
-  $(SRCLIBDIR)/daemon.sls			\
   $(SRCLIBDIR)/al/lists.sls			\
   $(SRCLIBDIR)/al/strings.sls			\
   $(SRCLIBDIR)/al/misc.sls			\
@@ -75,7 +74,14 @@ LIB_SLS_FILES = 				\
   $(SRCLIBDIR)/al/processes.sls			\
   $(SRCLIBDIR)/al/sound.sls			\
   $(SRCLIBDIR)/al/backlight.sls			\
-  $(SRCLIBDIR)/al/osd.sls
+  $(SRCLIBDIR)/al/osd.sls			\
+  $(SRCLIBDIR)/daemon.sls			\
+  $(SRCLIBDIR)/daemon/user/osd.sls		\
+  $(SRCLIBDIR)/daemon/user/sound.sls		\
+  $(SRCLIBDIR)/daemon/user/backlight.sls	\
+  $(SRCLIBDIR)/daemon/user/text.sls		\
+  $(SRCLIBDIR)/daemon/user/clock.sls		\
+  $(SRCLIBDIR)/daemon/user.sls
 
 LIB_SO_FILES = $(LIB_SLS_FILES:$(SRCLIBDIR)/%.sls=$(BLDLIBDIR)/%.so)
 
@@ -140,7 +146,9 @@ $(BLDLIBDIR)/%.so: $(SRCLIBDIR)/%.sls \
 	@cd $(dir $<) && \
 	echo '(compile-file "$<" "$@")' | $(CHEZ_WRAPPER) -q
 
-$(DAEMON_SO): $(DAEMON_SCM) $(CHEZ_WRAPPER)
+$(DAEMON_SO): $(DAEMON_SCM) $(CHEZ_WRAPPER) \
+	      $(BLDLIBDIR)/daemon.so \
+	      $(BLDLIBDIR)/match.so
 	@cd $(dir $<) && \
 	echo '(compile-program "$<" "$@")' | $(CHEZ_WRAPPER) -q
 

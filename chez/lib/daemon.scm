@@ -22,6 +22,13 @@
 
 ;;; Code:
 
+(define %eval-environment
+  (environment
+   '(chezscheme)
+   ;; XXX User config should be placed in (daemon user) library which
+   ;; must exist (otherwise, any evaluating will fail).
+   '(daemon user)))
+
 (define make-fifo-file
   (let ((proc (foreign-procedure "mkfifo" (string unsigned-32) int)))
     (lambda (file-name)
@@ -45,7 +52,7 @@
           (let ((expr (read port)))
             (if (eof-object? expr)
               res
-              (loop (eval expr))))))))
+              (loop (eval expr %eval-environment))))))))
 
   (let loop ()
     (guard (condition

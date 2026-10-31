@@ -28,6 +28,10 @@
 This program reads Scheme expressions sent to FIFO file, evaluates them,
 and writes the result of the last evaluation back to the FIFO file.
 
+Evaluation is performed inside environment where (chezscheme)
+and (daemon user) libraries are imported.  Therefore, (daemon user)
+library must exist.
+
 Normally, Chez Daemon does not quit: it just sits on the FIFO file
 waiting for commands.  You can send (exit) to finish the program.
 
