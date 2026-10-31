@@ -52,7 +52,8 @@ Also there is [[~/src/scheme/chez-srfi/install.chezscheme.sps]] script to instal
 cd ~/src/scheme/chez*
 ./configure --prefix=$HOME/.local
 make
-sudo pacman -S texlive-latex texlive-latexrecommended  # needed to make docs
+# texlive packages needed to make docs:
+sudo pacman -S texlive-latex texlive-plaingeneric texlive-latexextra
 make docs
 make install
 make install-docs
