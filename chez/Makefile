@@ -37,6 +37,8 @@ CHEZ_FULL = $(CURDIR)/chez-libs
 CHEZ_DAEMON = $(CURDIR)/daemon/chez-daemon
 DAEMON_SCM = $(CURDIR)/daemon/daemon.scm
 DAEMON_SO = $(DAEMON_SCM:%.scm=%.so)
+DAEMON_WPO = $(DAEMON_SCM:%.scm=%.wpo)
+DAEMON_WHOLE_SO = $(DAEMON_SO:%.so=%-whole.so)
 
 # This is needed to make optional dependencies for $(LIB_SO_FILES)
 # targets below.
@@ -103,7 +105,7 @@ CHEZ_DAEMON_EXEC_STRING = \
 'exec $(CHEZ)\
  --libdirs "$(BLDLIBDIR)"\
  --boot "$(BOOTDIR)/libs-quiet.boot"\
- --program "$(DAEMON_SO)"\
+ --program "$(DAEMON_WHOLE_SO)"\
  "$$@"'
 
 define make-shell-script
@@ -122,7 +124,7 @@ $(CHEZ_FULL):
 $(CHEZ_DAEMON):
 	$(call make-shell-script,CHEZ_DAEMON)
 
-daemon: $(CHEZ_DAEMON) $(DAEMON_SO)
+daemon: $(CHEZ_DAEMON) $(DAEMON_WHOLE_SO)
 
 boot: $(BOOT_FILES)
 
@@ -152,6 +154,11 @@ $(DAEMON_SO): $(DAEMON_SCM) $(CHEZ_WRAPPER) \
 	@cd $(dir $<) && \
 	echo '(compile-program "$<" "$@")' | $(CHEZ_WRAPPER) -q
 
+$(DAEMON_WHOLE_SO): $(DAEMON_SO)
+	@printf "⏵ Compiling '$@' ...\n"
+	@cd $(dir $<) && \
+	echo '(compile-whole-program "$(DAEMON_WPO)" "$@")' | $(CHEZ_WRAPPER) -q
+
 lib: $(LIB_SO_FILES)
 
 clean-boot:
@@ -160,7 +167,7 @@ clean-boot:
 
 clean-daemon:
 	@printf "⏵ Cleaning daemon files ...\n"
-	$(RM) $(CHEZ_DAEMON) $(DAEMON_SO) $(DAEMON_SO:%.so=%.wpo)
+	$(RM) $(CHEZ_DAEMON) $(DAEMON_SO) $(DAEMON_WPO)
 
 clean-lib:
 	@printf "⏵ Cleaning libraries ...\n"
