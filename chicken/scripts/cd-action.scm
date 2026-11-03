@@ -30,7 +30,6 @@
   (scheme file)
   (chicken format)
   (chicken io)
-  (al strings)
   (al messages))
 
 (define (show-help)
@@ -103,7 +102,9 @@ Available COMMANDs:
 
   Show ARGS (strings) in OSD on separate lines.
 
-  TODO PAUSE is the number of seconds to pause between displaying STRINGS.
+  If the first argument is an integer from 0 to 9, it is used as the
+  number of seconds to pause between displaying strings (rest
+  arguments).
 
   If strings are not specified, show OSD with the previously
   displayed strings.  If a single string is specified, it may contain

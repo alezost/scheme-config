@@ -65,14 +65,7 @@
            (display-pause-in-osd osd next-line pause)
            (loop rest next-line)))))))
 
-(define (osd-text strings pause)
-  ;; Show STRINGS in OSD on separate lines.
-  ;;
-  ;; PAUSE is the number of seconds to pause between displaying STRINGS.
-  ;;
-  ;; If STRINGS are not specified, show OSD with the previously
-  ;; displayed strings.  If a single string is specified, it may contain
-  ;; newlines.
+(define (osd-text-pause strings pause)
   (match strings
     (()
      (show-osd (text-osd 1)))
@@ -80,5 +73,20 @@
      (display-strings-in-osd (split-string string #\newline) pause))
     (strings
      (display-strings-in-osd strings pause))))
+
+(define (osd-text . args)
+  ;; Show ARGS (strings) in OSD on separate lines.
+  ;;
+  ;; The first argument can be a number.  In this case, it is used as
+  ;; the number of seconds to pause between displaying strings (rest
+  ;; arguments).
+  ;;
+  ;; If ARGS are not specified, show OSD with the previously displayed
+  ;; strings.  If a single string is specified, it may contain newlines.
+  (match args
+    (((? number? pause) strings …)
+     (osd-text-pause strings pause))
+    (strings
+     (osd-text-pause strings 0))))
 
 ;;; text.scm ends here

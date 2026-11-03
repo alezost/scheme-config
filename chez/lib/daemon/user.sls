@@ -8,8 +8,10 @@
           osd-backlight
           osd-text
           osd-clock)
-  (import (chezscheme)
+  (import (rnrs)
+          (only (chezscheme) include format)
           (match)
+          (let-macros)
           (al osd)
           (daemon user osd)
           (daemon user sound)

@@ -19,8 +19,16 @@
   (match cmd
     ("sound"     (apply osd-sound args))
     ("backlight" (apply osd-backlight args))
-    ;; TODO Add support for PAUSE argument.
-    ("text"      (osd-text args 0))
+    ("text"
+     (match args
+       ((first . rest)
+        (if-let ((pause first
+                        (<= (lambda (s)
+                              (= 1 (string-length s))))
+                        (=> string->number)))
+          (apply osd-text pause rest)
+          (apply osd-text args)))
+       (_ (osd-text))))
     ("clock"     (apply osd-clock args))
     ("show-osds" (show-osds))
     ("hide-osds" (hide-osds))
