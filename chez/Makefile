@@ -82,6 +82,7 @@ LIB_SLS_FILES = 				\
   $(SRCLIBDIR)/daemon/user/sound.sls		\
   $(SRCLIBDIR)/daemon/user/backlight.sls	\
   $(SRCLIBDIR)/daemon/user/text.sls		\
+  $(SRCLIBDIR)/daemon/user/device.sls		\
   $(SRCLIBDIR)/daemon/user/clock.sls		\
   $(SRCLIBDIR)/daemon/user.sls
 

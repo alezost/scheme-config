@@ -2,6 +2,7 @@
 
 (library (daemon user)
   (export action
+          device
           show-osds
           hide-osds
           osd-sound
@@ -17,6 +18,7 @@
           (daemon user sound)
           (daemon user backlight)
           (daemon user text)
+          (daemon user device)
           (daemon user clock))
   (include "user.scm"))
 

@@ -32,6 +32,7 @@
     ("clock"     (apply osd-clock args))
     ("show-osds" (show-osds))
     ("hide-osds" (hide-osds))
+    ("device"    (apply device args))
     ("exit"      (exit))
     (_
      (display-error-in-main-osd
