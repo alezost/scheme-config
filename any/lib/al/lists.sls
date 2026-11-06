@@ -1,6 +1,7 @@
 (library (al lists)
   (export replace
           split
+          nth
           map-indexed
           for-each-indexed
           count-indexed)

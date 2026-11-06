@@ -23,6 +23,13 @@
 
 ;;; Code:
 
+(define (nth list n)
+  ;; Return Nth element of LIST or #f if there is no such.
+  ;; N counts from zero.
+  (if (<= (length list) n)
+    #f
+    (list-ref list n)))
+
 (define (replace pred new lst)
   ;; Replace element of LST matching PRED with NEW element.
   (cons new (remove pred lst)))
