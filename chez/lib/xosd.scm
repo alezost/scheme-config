@@ -62,16 +62,6 @@ library.
 ;;; Code:
 
 
-;;; Auxiliary code
-
-(define (print-error format-string . args)
-  (apply format (current-error-port) format-string args)
-  (newline))
-
-(define (integer->bool integer)
-  (not (zero? integer)))
-
-
 ;; Enum definitions
 
 (define %XOSD_percentage 0)

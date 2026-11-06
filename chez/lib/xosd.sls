@@ -29,5 +29,6 @@
    display-slider-in-osd)
   (import (chezscheme)
           (drecords)
-          (only (aux-utils) parse-arg-syntax))
+          (aux-utils)
+          (al messages))
   (include "xosd.scm"))
