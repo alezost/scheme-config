@@ -2,6 +2,8 @@
 
 (define-library (aux-utils)
   (export identity ->bool const ignore
+          integer->bool
+          bool->integer
           negate compose-left
           and=> and<=
           with-error->false

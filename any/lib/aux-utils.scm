@@ -149,6 +149,16 @@
 (define >0 positive?)
 (define <0 negative?)
 
+;; `integer->bool' and `bool->integer' are useful for foreign
+;; procedure calls.
+
+;; (define integer->bool (negate =0))
+(define (integer->bool integer)
+  (not (zero? integer)))
+
+(define (bool->integer bool)
+  (if bool 1 0))
+
 (cond-expand
   (guile
    (define inc 1+)
