@@ -88,10 +88,6 @@
   ;;
   ;; Return percentage of the current actual backlight if it was set
   ;; successfully.  Return #f otherwise.
-  (define (bl-num str)
-    (string->number
-     (substring str 1 (string-length str))))
-
   (define (backlight val)
     (cond
      ((integer? val)
@@ -99,14 +95,13 @@
        (round (* (/ (max-brightness) 100)
                  val))))
      ((string? val)
-      (let ((first-char (string-ref val 0)))
+      (let ((first-char (string-ref val 0))
+            (bl (string->number val)))
         (case first-char
-          ((#\+)
-           (backlight (+ (get-backlight) (bl-num val))))
-          ((#\-)
-           (backlight (- (get-backlight) (bl-num val))))
+          ((#\+ #\-)
+           (backlight (+ (get-backlight) bl)))
           (else
-           (backlight (string->number val))))))
+           (backlight bl)))))
      (else #f)))
 
   (when-let ((bl (backlight value)))
