@@ -2,6 +2,9 @@
 
 (library (al misc)
   (export getenv
+          setenv
+          call-with-locale
+          with-locale
           null-port
           with-no-output
           memoize
@@ -16,7 +19,7 @@
                   current-error-port)
           (rnrs r5rs)
           (only (chezscheme)
-                include getenv format
+                include getenv putenv format
                 parameterize
                 current-output-port
                 current-error-port

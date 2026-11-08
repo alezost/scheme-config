@@ -1,7 +1,11 @@
 ;;; misc.sld --- Miscellaneous utilities library
 
 (define-library (al misc)
-  (export null-port
+  (export getenv
+          setenv
+          call-with-locale
+          with-locale
+          null-port
           with-no-output
           memoize
           scheme->lisp
@@ -22,13 +26,12 @@
              remove-keywords)
      (import (guile)
              (ice-9 format)
-             (match))
-     (begin (re-export getenv)))
+             (match)))
 
     (chicken
-     (export getenv)
      (import (scheme base)
              (srfi 48)          ; format
+             (chicken process-context)
              (chicken port)))
     (else))
 

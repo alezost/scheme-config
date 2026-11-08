@@ -71,12 +71,18 @@ info manual."
 
    (define getenv get-environment-variable)
 
+   (define (setenv name value)
+     (set-environment-variable! name (or value "")))
+
    (define (log10 n)
      (/ (log n) (log 10))))
 
   (chez
    (define-lazy null-port
      (make-output-port ignore ""))
+
+   (define (setenv name value)
+     (putenv name (or value "")))
 
    (define (log10 n)
      (log n 10)))
@@ -114,6 +120,17 @@ info manual."
     (parameterize ((current-output-port null)
                    (current-error-port  null))
       body ...)))
+
+(define (call-with-locale locale thunk)
+  ;; Call (THUNK) temporarily setting "LC_ALL" to LOCALE.
+  (let ((old-locale (getenv "LC_ALL")))
+    (dynamic-wind
+      (lambda () (setenv "LC_ALL" locale))
+      thunk
+      (lambda () (setenv "LC_ALL" old-locale)))))
+
+(define-syntax-rule (with-locale locale body ...)
+  (call-with-locale locale (lambda () body ...)))
 
 (define split-path
   ;; (split-path [PATH] [SEPARATOR])
