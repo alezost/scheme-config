@@ -56,11 +56,13 @@
         (show osd (or line1 "") 1)))))
 
 (define-syntax show-main-osd
-  ;; (make-osd [(PROP VALUE) ...])
+  ;; (show-main-osd [(FIELD VALUE) ...])
   ;;
-  ;; Create and return a new OSD object with the specified arguments.
-  ;; PROP can be either `lines' or any symbol supported by `set-osd!'.
-  ;; `lines' VALUE is the number of lines that OSD object can display.
+  ;; Show main OSD.
+  ;;
+  ;; If FIELDs are specified, they can be either `line0', `line1' (see
+  ;; `display-in-main-osd' for details), or any symbol supported by
+  ;; `set-osd!'.
   (lambda (x)
     (syntax-case x ()
       ((_)
