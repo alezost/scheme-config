@@ -26,18 +26,23 @@
 ;;; Code:
 
 (define-drecord sound volume state)
+(define-drecord backend name description getter setter)
+
+
+;;; amixer interface
 
 (define %amixer-control "Master")
 
+;; "default" device is PulseAudio (on a system with PulseAudio).
+;; "hw:0" device makes amixer connect directly to ALSA avoiding
+;; PulseAudio layer.  Downsides: non-logarithmic percent scale,
+;; volume step is big (bigger than 1%), unmuting does not work.
+(define amixer-device (make-parameter "default"))
+
 (define (call-amixer . args)
   ;; Call 'amixer' with ARGS and return its output.
-
-  ;; Use "-D hw:0" to avoid PulseAudio layer and connect directly to
-  ;; ALSA device.  Downsides: non-logarithmic percent scale, volume step
-  ;; is big (bigger than 1%), unmuting doesn't work.
-  ;;
-  ;; (apply system*-output "amixer" "-D" "hw:0" args)
-  (apply system*-output "amixer" args))
+  (apply system*-output
+         "amixer" "-D" (amixer-device) args))
 
 #|
 Typical amixer output without Pulseaudio:
@@ -61,11 +66,6 @@ Simple mixer control 'Master',0
   ;; (parse-amixer-output OUTPUT)
   ;;
   ;; Parse 'amixer' OUTPUT and return sound record.
-  ;;
-  ;; Return #f if OUTPUT cannot be parsed.  Otherwise, return sound
-  ;; record for the current sound value, where `volume' field is an
-  ;; integer from 0 to 100, `state' field is `on' (if sound is on) or
-  ;; `off' (if sound is off) symbol.
   (let ((re (rx "Playback " (+ digit)
                 " [" ($ (+ digit)) "%]"
                 (+ any)
@@ -76,34 +76,11 @@ Simple mixer control 'Master',0
          (volume (string->number (regexp-match-submatch match 1)))
          (state  (string->symbol (regexp-match-submatch match 2))))))))
 
-(define (get-sound)
-  ;; Return sound record for the current sound value.
-  ;; See `parse-amixer-output' for details.
+(define (amixer-get-sound)
   (parse-amixer-output
    (call-amixer "get" %amixer-control)))
 
-(define (set-sound snd)
-  ;; Set sound according to SND sound record.
-  ;;
-  ;; SND `volume' field should be either:
-  ;;
-  ;;  - #f if volume value should not be changed,
-  ;;
-  ;;  - an integer from 0 to 100,
-  ;;
-  ;;  - a string in "sN" format, where "N" is an integer and "s" is an
-  ;;    optional sign i.e., "s" is either:
-  ;;
-  ;;    "+": to increase volume by N,
-  ;;    "-": to decrease volume by N,
-  ;;    empty string: to set volume to N.
-  ;;
-  ;; SND `state' field should be either #f (if state value should not be
-  ;; changed), `on' (to turn sound on), `off' (to turn sound off), or
-  ;; `toggle' string or symbol.
-  ;;
-  ;; Return sound record for the current sound value.
-  ;; See `parse-amixer-output' for details.
+(define (amixer-set-sound snd)
   (define (->volume-arg vol)
     (cond
      ((integer? vol)
@@ -131,16 +108,75 @@ Simple mixer control 'Master',0
     (parse-amixer-output
      (apply call-amixer "set" %amixer-control args))))
 
+(define (alsa-get-sound)
+  (parameterize ((amixer-device "hw:0"))
+    (amixer-get-sound)))
+
+(define (alsa-set-sound snd)
+  (parameterize ((amixer-device "hw:0"))
+    (amixer-set-sound snd)))
+
+(define be/amixer
+  (backend
+   (name "amixer")
+   (description "amixer (default device)")
+   (getter amixer-get-sound)
+   (setter amixer-set-sound)))
+
+(define be/alsa
+  (backend
+   (name "alsa")
+   (description "amixer (ALSA device)")
+   (getter alsa-get-sound)
+   (setter alsa-set-sound)))
+
+
+;;; High-level interface
+
+(define (get-sound)
+  ;; Return sound record for the current sound value.
+  ;;
+  ;; `volume' field of the sound record is a percentage integer (can be
+  ;; greater than 100 for some backends), `state' field is `on' (if
+  ;; sound is on) or `off' (if sound is off) symbol.
+  ((backend-getter (current-backend))))
+
+(define (set-sound snd)
+  ;; Set sound according to SND sound record.
+  ;;
+  ;; SND `volume' field should be either:
+  ;;
+  ;;  - #f if volume value should not be changed.
+  ;;
+  ;;  - Percentage integer (can be greater than 100 for some backends).
+  ;;
+  ;;  - String in "sN" format, where "N" is an integer and "s" is an
+  ;;    optional sign i.e., "s" is either:
+  ;;
+  ;;    "+": to increase volume by N,
+  ;;    "-": to decrease volume by N,
+  ;;    empty string: to set volume to N.
+  ;;
+  ;; SND `state' field should be either #f (if state value should not be
+  ;; changed), `on' (to turn sound on), `off' (to turn sound off), or
+  ;; `toggle' string or symbol.
+  ;;
+  ;; Return sound record for the current sound value.
+  ;; See `get-sound' for details.
+  ((backend-setter (current-backend)) snd))
+
 (define (increase-volume percentage)
   ;; Increase sound volume by PERCENTAGE.
-  ;; Return percentage of the current volume.
+  ;; Return sound record for the current sound value.
   (set-sound
    (sound (volume (string-append "+" (number->string percentage))))))
 
 (define (decrease-volume percentage)
   ;; Decrease sound volume by PERCENTAGE.
-  ;; Return percentage of the current volume.
+  ;; Return sound record for the current sound value.
   (set-sound
    (sound (volume (string-append "-" (number->string percentage))))))
+
+(define current-backend (make-parameter be/amixer))
 
 ;;; sound.scm ends here
