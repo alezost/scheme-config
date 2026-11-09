@@ -18,6 +18,7 @@
           current-backend
           be/amixer
           be/alsa
+          be/pactl
           get-sound
           set-sound
           increase-volume
@@ -29,9 +30,11 @@
                 ;; define-values
                 make-parameter parameterize)
           (srfi :115)
+          (match)
           (drecords)
           (aux-utils)
           (let-macros)
+          (al misc)
           (al processes))
 
   (include "sound.scm"))

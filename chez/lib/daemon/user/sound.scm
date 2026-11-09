@@ -28,8 +28,11 @@
      (output-sound snd #t))
     ((snd show-osd?)
      (if snd
-       (let ((volume (sound-volume snd))
-             (muted? (eq? 'off (sound-state snd))))
+       (let* ((volume (sound-volume snd))
+              (volume (if (list? volume)
+                        (car volume)
+                        volume))
+              (muted? (eq? 'off (sound-state snd))))
          (when show-osd?
            (show-main-osd
             (line0   (format #f "Sound: ~d%" volume))

@@ -18,6 +18,7 @@
           current-backend
           be/amixer
           be/alsa
+          be/pactl
           get-sound
           set-sound
           increase-volume
@@ -26,9 +27,11 @@
   (import (scheme base)
           (only (srfi 1) find)
           (srfi 115)
+          (match)
           (drecords)
           (aux-utils)
           (let-macros)
+          (al misc)
           (al processes))
 
   (cond-expand

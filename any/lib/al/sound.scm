@@ -168,14 +168,99 @@ Simple mixer control 'Master',0
    (setter alsa-set-sound)))
 
 
+;;; pactl interface
+
+(define (call-pactl . args)
+  ;; Call 'pactl' with ARGS and return its output.
+  (apply system*-output "pactl" args))
+
+;; We can also use one of the following:
+;;
+;; "@DEFAULT_SINK@"
+;; (string-trim-right (call-pactl "get-default-sink"))
+(define %pactl-sink "0")
+
+(define pactl-get-volume
+  ;; Return list with per-channel volume percentages.
+  ;; Return #f if sound volume cannot be received for any reason.
+
+  ;; get-sink-volume output:
+  ;; Volume: front-left: 37355 /  57% / -14.65 dB,   front-right: 37355 /  57% / -14.65 dB
+  (let ((re (rx ($ (+ digit)) "%")))
+    (lambda ()
+      (when-let1 ((output (call-pactl "get-sink-volume" %pactl-sink))
+                  (chn-strings (regexp-split "," output)))
+        (map (lambda (str)
+               (when-let ((match (regexp-search re str)))
+                 (string->number
+                  (regexp-match-submatch match 1))))
+             chn-strings)))))
+
+(define pactl-mute?
+  ;; get-sink-mute output: "Mute: no" or "Mute: yes".
+  (let ((re (rx "Mute: " ($ (or "yes" "no")))))
+    (lambda ()
+      (when-let ((output (with-locale "C"
+                           (call-pactl "get-sink-mute" %pactl-sink)))
+                 (match (regexp-search re output)))
+        (string=? "yes" (regexp-match-submatch match 1))))))
+
+(define (pactl-get-sound)
+  (sound
+   (volume (pactl-get-volume))
+   (state  (if (pactl-mute?) 'off 'on))))
+
+(define (pactl-set-sound snd)
+  (define (->volume-arg vol)
+    (and vol
+         (cond
+          ((string? vol)
+           (string-append vol "%"))
+          ((integer? vol)
+           (->volume-arg (number->string vol)))
+          ((list? vol)
+           (map (lambda (v)
+                  ;; If this channel volume is #f, we pass +0% to pactl
+                  ;; to leave this channel unchanged.
+                  (or (->volume-arg v) "+0%"))
+                vol))
+          (else #f))))
+
+  (define (->mute-arg state)
+    (match state
+      ((or 'on "on") "0")
+      ((or 'off "off") "1")
+      (else state)))
+
+  (let ((volume-arg (->volume-arg (sound-volume snd)))
+        (mute-arg   (->mute-arg   (sound-state snd))))
+    (when volume-arg
+      (apply call-pactl "set-sink-volume" %pactl-sink
+             (if (list? volume-arg)
+               volume-arg
+               (list volume-arg))))
+    (when mute-arg
+      (call-pactl "set-sink-mute" %pactl-sink mute-arg)))
+  (pactl-get-sound))
+
+(define be/pactl
+  (backend*
+   (name "pactl")
+   (getter pactl-get-sound)
+   (setter pactl-set-sound)))
+
+
 ;;; High-level interface
 
 (define (get-sound)
   ;; Return sound record for the current sound value.
   ;;
-  ;; `volume' field of the sound record is a percentage integer (can be
-  ;; greater than 100 for some backends), `state' field is `on' (if
-  ;; sound is on) or `off' (if sound is off) symbol.
+  ;; `volume' field of the sound record is either a percentage integer
+  ;; (can be greater than 100 for some backends) or a list with
+  ;; per-channel volumes of the above form.
+  ;;
+  ;; `state' field is `on' (if sound is on) or `off' (if sound is off)
+  ;; symbol.
   ((backend-getter (current-backend))))
 
 (define (set-sound snd)
@@ -193,6 +278,9 @@ Simple mixer control 'Master',0
   ;;    "+": to increase volume by N,
   ;;    "-": to decrease volume by N,
   ;;    empty string: to set volume to N.
+  ;;
+  ;;  - List with per-channel volumes (each volume can have one of the
+  ;;    above forms).
   ;;
   ;; SND `state' field should be either #f (if state value should not be
   ;; changed), `on' (to turn sound on), `off' (to turn sound off), or
