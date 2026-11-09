@@ -7,6 +7,10 @@
           sound-state
           backend
           backend?
+          backend*
+          backends
+          register-backend
+          backend-by-name
           backend-name
           backend-description
           backend-getter
@@ -20,6 +24,7 @@
           decrease-volume)
 
   (import (scheme base)
+          (only (srfi 1) find)
           (srfi 115)
           (drecords)
           (aux-utils)

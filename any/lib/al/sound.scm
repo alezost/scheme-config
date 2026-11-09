@@ -20,13 +20,50 @@
 
 ;;; Commentary:
 
-;; This file provides code related to sound (currently: calling 'amixer'
-;; and parsing its output).
+;; This file provides code related to sound.  The main procedures to
+;; control and check sound values are `set-sound' and `get-sound'.  See
+;; their description in the according procedure commentaries.  They use
+;; `current-backend' parameter to set/get sound info.  It can be changed
+;; like this:
+;;
+;;   (current-backend be/alsa)
+;;   (current-backend (backend-by-name "pactl"))
+;;
+;; Call `backends' to get a list of all available backends.
 
 ;;; Code:
 
 (define-drecord sound volume state)
 (define-drecord backend name description getter setter)
+
+;; For some reason, Guile cannot handle the following `define-values'
+;; clause.  Compilation gives the an error like this one:
+;;
+;;   Unbound variable: t-158ed5752046006f-6b
+;;
+;; (define-values (backends
+;;                 register-backend)
+;;   (let ((bs '()))
+;;     (values
+;;       (lambda () bs)
+;;       (lambda (b) (push! b bs)))))
+;;
+;; So we define a global variable `%backends':
+
+(define %backends '())
+(define (backends) %backends)
+(define (register-backend backend)
+  (push! backend %backends))
+
+(define-syntax-rule (backend* args ...)
+  (let ((b (backend args ...)))
+    (register-backend b)
+    b))
+
+(define (backend-by-name name)
+  (find (lambda (b)
+          (string=? name (backend-name b)))
+        (backends)))
 
 
 ;;; amixer interface
@@ -117,14 +154,14 @@ Simple mixer control 'Master',0
     (amixer-set-sound snd)))
 
 (define be/amixer
-  (backend
+  (backend*
    (name "amixer")
    (description "amixer (default device)")
    (getter amixer-get-sound)
    (setter amixer-set-sound)))
 
 (define be/alsa
-  (backend
+  (backend*
    (name "alsa")
    (description "amixer (ALSA device)")
    (getter alsa-get-sound)

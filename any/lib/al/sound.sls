@@ -7,6 +7,10 @@
           sound-state
           backend
           backend?
+          backend*
+          backends
+          register-backend
+          backend-by-name
           backend-name
           backend-description
           backend-getter
@@ -22,6 +26,7 @@
   (import (rnrs)
           (only (chezscheme)
                 include format
+                ;; define-values
                 make-parameter parameterize)
           (srfi :115)
           (drecords)
