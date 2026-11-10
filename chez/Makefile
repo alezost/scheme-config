@@ -67,6 +67,7 @@ LIB_SLS_FILES = 				\
   $(SRCLIBDIR)/srfi/srfi-115/boundary.sls	\
   $(SRCLIBDIR)/srfi/srfi-115.sls		\
   $(SRCLIBDIR)/xosd.sls				\
+  $(SRCLIBDIR)/pulseaudio.sls			\
   $(SRCLIBDIR)/al/lists.sls			\
   $(SRCLIBDIR)/al/strings.sls			\
   $(SRCLIBDIR)/al/misc.sls			\
