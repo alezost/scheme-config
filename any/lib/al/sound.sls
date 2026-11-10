@@ -19,6 +19,7 @@
           be/amixer
           be/alsa
           be/pactl
+          be/pulse
           get-sound
           set-sound
           increase-volume
@@ -32,11 +33,13 @@
           (srfi :115)
           (match)
           (drecords)
+          (pulseaudio)
           (aux-utils)
           (let-macros)
           (al misc)
           (al processes))
 
-  (include "sound.scm"))
+  (include "sound.scm")
+  (include "sound.chez.scm"))
 
 ;;; sound.sls ends here
