@@ -56,6 +56,9 @@
   ;;   ("set" "VALUE")  set sound volume to the specified VALUE,
   ;;                    see `set-sound' for details;
   ;;
+  ;;   ("backend" "NAME")  set sound backend to NAME; available NAMEs:
+  ;;                       "amixer", "alsa", "pactl", "pulse".
+  ;;
   ;;   ("on")           unmute (turn sound on);
   ;;
   ;;   ("off")          mute (turn sound off);
@@ -79,6 +82,17 @@
      (output-sound (get-sound) #f))
     (("set" value)
      (output-sound (set-sound (sound (volume value)))))
+    (("backend" name)
+     (if-let ((b (backend-by-name name)))
+       (begin
+         (current-backend b)
+         (show-main-osd (line0 "Sound backend:")
+                        (line1 (or (backend-description b) name))
+                        (color %color-on)
+                        (timeout 7)))
+       (display-error-in-main-osd
+        (format #f "Unknown sound backend: ~a" name)))
+     name)
     ((cmd)
      (match cmd
        ((or "on" "off" "toggle")

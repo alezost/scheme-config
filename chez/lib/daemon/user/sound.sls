@@ -3,6 +3,7 @@
   (import (rnrs)
           (only (chezscheme) include format)
           (match)
+          (let-macros)
           (xosd)
           (al sound)
           (al misc)
