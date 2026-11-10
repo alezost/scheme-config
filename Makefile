@@ -30,8 +30,8 @@ $(LIBDIR)/%.sld: $$(wildcard $(LIBDIR)/%.scm)
 	touch "$@"
 
 $(IMPLS): lib-files
-	@printf "⏺ Building '$@' sub-directory ...\n"
-	cd "$@" && $(MAKE)
+	@printf "⏺ Making '$@' sub-directory ...\n"
+	@cd "$@" && $(MAKE)
 
 lib clean clean-lib:
 	@for dir in $(IMPLS); do \

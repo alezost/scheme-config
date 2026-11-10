@@ -21,7 +21,7 @@ BINFILES = $(SCRIPTS:scripts/%.scm=bin/%)
 LIBDIR = $(CURDIR)/lib
 LIBDIRS =				\
   $(LIBDIR)  				\
-  $(LIBDIR)/al				\
+  $(LIBDIR)/al
 
 all: lib bin
 
