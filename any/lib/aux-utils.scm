@@ -134,16 +134,22 @@
 
 (define not-null? (negate null?))
 
-(define (assq-get key alist)
-  ;; Having (KEY . VALUE) pairs in ALIST, return VALUE.
-  ;; Return #f if there is no such KEY in ALIST.
-  (and=> (assq key alist) cdr))
+(define-syntax-rule (define-alist-procedures ass ass-get ass-set)
+  (begin
+    (define (ass-get key alist)
+      (and=> (ass key alist) cdr))
 
-(define (assv-get key alist)
-  (and=> (assv key alist) cdr))
+    (define (ass-set key value alist)
+      (let ((pair (ass key alist)))
+        (if pair
+          (begin
+            (set-cdr! pair value)
+            alist)
+          (cons (cons key value) alist))))))
 
-(define (assoc-get key alist)
-  (and=> (assoc key alist) cdr))
+(define-alist-procedures assq assq-get assq-set!)
+(define-alist-procedures assv assv-get assv-set!)
+(define-alist-procedures assoc assoc-get assoc-set!)
 
 (define =0 zero?)
 (define >0 positive?)

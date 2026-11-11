@@ -12,6 +12,7 @@
           push!
           not-null?
           assq-get assv-get assoc-get
+          assq-set! assv-set! assoc-set!
           =0 >0 <0 inc dec)
 
   (cond-expand
