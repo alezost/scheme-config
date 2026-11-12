@@ -19,54 +19,13 @@
 
 ;;; Code:
 
-(define (sink-info->sound info)
-  (sound
-   (volume (map volume->percent
-                (sink-info-channels info)))
-   (state  (if (sink-info-mute? info) 'off 'on))))
-
 (define (pulse-get-sound)
-  (sink-info->sound (get-sink-info)))
+  (map volume->percent
+       (sink-info-channels (get-sink-info))))
 
-(define (pulse-volume-adder value)
-  (cond
-   ((not value) identity)
-   ((integer? value)
-    (const (percent->volume value)))
-   ((string? value)
-    (let ((first-char (string-ref value 0))
-          (vol (percent->volume (string->number value))))
-      (case first-char
-        ((#\+ #\-) (lambda (v) (+ v vol)))
-        (else (const vol)))))))
-
-(define (pulse-set-sound snd)
-  (let ((info (get-sink-info)))
-
-    (define (->volumes value)
-      (if (list? value)
-        (map (lambda (volume value)
-               ((pulse-volume-adder value) volume))
-             (sink-info-channels info)
-             value)
-        (map (pulse-volume-adder value)
-             (sink-info-channels info))))
-
-    (define (->mute state)
-      (match state
-        ((or 'on "on") #f)
-        ((or 'off "off") #t)
-        ((or 'toggle "toggle") (not (sink-info-mute? info)))))
-
-    (when-let1 ((vol (sound-volume snd))
-                (vols (->volumes vol)))
-      (apply set-volume vols)
-      (sink-info-channels info vols))
-    (when-let1 ((state (sound-state snd))
-                (mute (->mute state)))
-      (set-mute mute)
-      (sink-info-mute? info mute))
-    (sink-info->sound info)))
+(define (pulse-set-sound . percentages)
+  (apply set-volume
+         (map percent->volume percentages)))
 
 (define be/pulse
   (backend*

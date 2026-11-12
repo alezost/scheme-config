@@ -27,12 +27,9 @@
     ((snd)
      (output-sound snd #t))
     ((snd show-osd?)
-     (if snd
-       (let* ((volume (sound-volume snd))
-              (volume (if (list? volume)
-                        (car volume)
-                        volume))
-              (muted? (eq? 'off (sound-state snd))))
+     (if-let ((snd (if (list? snd) (car snd) snd)))
+       (let ((volume (sound-volume snd))
+             (muted? (sound-mute? snd)))
          (when show-osd?
            (show-main-osd
             (line0   (format #f "Sound: ~d%" volume))
@@ -41,6 +38,11 @@
             (timeout (if muted? %timeout-off %timeout-on))))
          (list volume (scheme->lisp (not muted?))))
        (display-error-in-main-osd "Cannot obtain sound value")))))
+
+(define (sound* . args)
+  (let-values (((snd ignore)
+                (apply set-sound args)))
+    snd))
 
 (define (osd-sound . args)
   ;; Update sound according to ARGS and show sound OSD.
@@ -77,11 +79,11 @@
   ;; Return false value in Lisp format in case of any error.
   (match args
     ((or () ("show"))
-     (output-sound (get-sound) #t))
+     (output-sound (sound*) #t))
     (("get")
-     (output-sound (get-sound) #f))
-    (("set" value)
-     (output-sound (set-sound (sound (volume value)))))
+     (output-sound (sound*) #f))
+    (("set" args …)
+     (output-sound (apply sound* args)))
     (("backend" name)
      (if-let ((b (backend-by-name name)))
        (begin
@@ -93,15 +95,7 @@
        (display-error-in-main-osd
         (format #f "Unknown sound backend: ~a" name)))
      name)
-    ((cmd)
-     (match cmd
-       ((or "on" "off" "toggle")
-        (output-sound (set-sound (sound (state cmd)))))
-       (_
-        (display-error-in-main-osd
-         (format #f "Unknown command: ~a" cmd)))))
-    (_
-     (display-error-in-main-osd
-      (format #f "Unknown arguments: ~a" args)))))
+    (args
+     (output-sound (apply sound* args)))))
 
 ;;; sound.scm ends here

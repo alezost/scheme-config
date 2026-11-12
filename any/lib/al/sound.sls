@@ -4,7 +4,7 @@
   (export sound
           sound?
           sound-volume
-          sound-state
+          sound-mute?
           backend
           backend?
           backend*
@@ -27,7 +27,8 @@
 
   (import (rnrs)
           (only (chezscheme)
-                include format
+                include format reverse!
+                make-list
                 ;; define-values
                 make-parameter parameterize)
           (srfi :115)
@@ -37,6 +38,8 @@
           (aux-utils)
           (let-macros)
           (al misc)
+          (al lists)
+          (al messages)
           (al processes))
 
   (include "sound.scm")

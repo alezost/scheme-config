@@ -33,7 +33,26 @@
 
 ;;; Code:
 
-(define-drecord sound volume state)
+;; `sound-volume' is a percentage integer (can be greater than 100 for
+;; some backends).
+;;
+;; `sound-mute?' is #t (if sound is off) or #f (if sound is on)
+(define-drecord sound volume mute?)
+
+(define (sound-equal? snd1 snd2)
+  (and (eq? (sound-mute? snd1)
+            (sound-mute? snd2))
+       (fx=? (sound-volume snd1)
+             (sound-volume snd2))))
+
+;; `backend-getter' should accept zero arguments and should return
+;; either #f (if sound info cannot be obtained) or list of integers
+;; (per-channel volume percentages).
+;;
+;; `backend-setter' should accept VOLUMES as the rest argument.  VOLUMES
+;; list consists either of a single volume percentage (to set it for all
+;; channels) or volume percentages for all channels.  `backend-setter'
+;; should return #f if sound info cannot be changed.
 (define-drecord backend name description getter setter)
 
 ;; For some reason, Guile cannot handle the following `define-values'
@@ -102,48 +121,31 @@ Simple mixer control 'Master',0
 (define parse-amixer-output
   ;; (parse-amixer-output OUTPUT)
   ;;
-  ;; Parse 'amixer' OUTPUT and return sound record.
+  ;; Parse 'amixer' OUTPUT and return list of channel volumes.
   (let ((re (rx "Playback " (+ digit)
-                " [" ($ (+ digit)) "%]"
-                (+ any)
-                "[" ($ (or "on" "off")) "]")))
+                " [" ($ (+ digit)) "%]")))
     (lambda (output)
-      (when-let ((match (regexp-search re output)))
-        (sound
-         (volume (string->number (regexp-match-submatch match 1)))
-         (state  (string->symbol (regexp-match-submatch match 2))))))))
+      (let loop ((start 0)
+                 (volumes '()))
+        (if-let ((match (regexp-search re output start)))
+          (loop (regexp-match-submatch-end match 0)
+                (cons (string->number (regexp-match-submatch match 1))
+                      volumes))
+          (and (not-null? volumes)
+               (reverse! volumes)))))))
 
 (define (amixer-get-sound)
   (parse-amixer-output
    (call-amixer "get" %amixer-control)))
 
-(define (amixer-set-sound snd)
-  (define (->volume-arg vol)
-    (cond
-     ((integer? vol)
-      (string-append (number->string vol) "%"))
-     ((string? vol)
-      (let ((first-char (string-ref vol 0)))
-        (case first-char
-          ((#\+ #\-)
-           (format #f "~a%~c"
-                   (substring vol 1 (string-length vol))
-                   first-char))
-          (else
-           (string-append vol "%")))))
-     (else #f)))
-
-  (define (->mute-arg mute)
-    (if (symbol? mute)
-      (symbol->string mute)
-      mute))
-
-  (let* ((volume-arg (->volume-arg (sound-volume snd)))
-         (mute-arg   (->mute-arg   (sound-state snd)))
-         (args       (filter identity
-                             (list volume-arg mute-arg))))
-    (parse-amixer-output
-     (apply call-amixer "set" %amixer-control args))))
+(define (amixer-set-sound volume . rest-volumes)
+  ;; Set all channels to VOLUME (percentage integer).
+  ;;
+  ;; XXX REST-VOLUMES are ignored i.e., per-channel volumes is not
+  ;; currently supported.
+  (parse-amixer-output
+   (call-amixer "set" %amixer-control
+                (string-append (number->string volume) "%"))))
 
 (define (alsa-get-sound)
   (parameterize ((amixer-device "hw:0"))
@@ -180,7 +182,7 @@ Simple mixer control 'Master',0
 ;; (string-trim-right (call-pactl "get-default-sink"))
 (define %pactl-sink "0")
 
-(define pactl-get-volume
+(define pactl-get-sound
   ;; Return list with per-channel volume percentages.
   ;; Return #f if sound volume cannot be received for any reason.
 
@@ -188,7 +190,8 @@ Simple mixer control 'Master',0
   ;; Volume: front-left: 37355 /  57% / -14.65 dB,   front-right: 37355 /  57% / -14.65 dB
   (let ((re (rx ($ (+ digit)) "%")))
     (lambda ()
-      (when-let1 ((output (call-pactl "get-sink-volume" %pactl-sink))
+      (when-let1 ((output (with-locale "C"
+                            (call-pactl "get-sink-volume" %pactl-sink)))
                   (chn-strings (regexp-split "," output)))
         (map (lambda (str)
                (when-let ((match (regexp-search re str)))
@@ -196,52 +199,13 @@ Simple mixer control 'Master',0
                   (regexp-match-submatch match 1))))
              chn-strings)))))
 
-(define pactl-mute?
-  ;; get-sink-mute output: "Mute: no" or "Mute: yes".
-  (let ((re (rx "Mute: " ($ (or "yes" "no")))))
-    (lambda ()
-      (when-let ((output (with-locale "C"
-                           (call-pactl "get-sink-mute" %pactl-sink)))
-                 (match (regexp-search re output)))
-        (string=? "yes" (regexp-match-submatch match 1))))))
-
-(define (pactl-get-sound)
-  (sound
-   (volume (pactl-get-volume))
-   (state  (if (pactl-mute?) 'off 'on))))
-
-(define (pactl-set-sound snd)
-  (define (->volume-arg vol)
-    (and vol
-         (cond
-          ((string? vol)
-           (string-append vol "%"))
-          ((integer? vol)
-           (->volume-arg (number->string vol)))
-          ((list? vol)
-           (map (lambda (v)
-                  ;; If this channel volume is #f, we pass +0% to pactl
-                  ;; to leave this channel unchanged.
-                  (or (->volume-arg v) "+0%"))
-                vol))
-          (else #f))))
-
-  (define (->mute-arg state)
-    (match state
-      ((or 'on "on") "0")
-      ((or 'off "off") "1")
-      (else state)))
-
-  (let ((volume-arg (->volume-arg (sound-volume snd)))
-        (mute-arg   (->mute-arg   (sound-state snd))))
-    (when volume-arg
-      (apply call-pactl "set-sink-volume" %pactl-sink
-             (if (list? volume-arg)
-               volume-arg
-               (list volume-arg))))
-    (when mute-arg
-      (call-pactl "set-sink-mute" %pactl-sink mute-arg)))
-  (pactl-get-sound))
+(define (pactl-set-sound . volumes)
+  (apply call-pactl "set-sink-volume" %pactl-sink
+         (map (lambda (vol)
+                (string-append (number->string vol) "%"))
+              volumes))
+  ;; XXX Should return #f if pactl failed to set sound.
+  #t)
 
 (define be/pactl
   (backend*
@@ -252,23 +216,130 @@ Simple mixer control 'Master',0
 
 ;;; High-level interface
 
-(define (get-sound)
-  ;; Return sound record for the current sound value.
+(define (same-sound-checker)
+  ;; Return PROCEDURE to check if all sound records are equal.
   ;;
-  ;; `volume' field of the sound record is either a percentage integer
-  ;; (can be greater than 100 for some backends) or a list with
-  ;; per-channel volumes of the above form.
+  ;; PROCEDURE takes a single argument, sound record.  It returns #t or
+  ;; #f depending on whether all sound records that it was previously
+  ;; called with (including the current one) are equal or not.
   ;;
-  ;; `state' field is `on' (if sound is on) or `off' (if sound is off)
-  ;; symbol.
-  ((backend-getter (current-backend))))
+  ;; PROCEDURE can be also called without arguments to return the
+  ;; current state of previously called sound records.
+  (let ((same? #t)
+        (prev-snd #f))
+    (case-lambda
+      (() same?)
+      ((snd)
+       (when same?
+         (if prev-snd
+           (unless (sound-equal? snd prev-snd)
+             (set! same? #f))
+           (set! prev-snd snd)))
+       same?))))
 
-(define (set-sound snd)
-  ;; Set sound according to SND sound record.
+(define channel-volume-cache
+  (let ((cache '()))
+    (case-lambda
+      ((channel)
+       (assv-get channel cache))
+      ((channel volume)
+       (set! cache (assv-set! channel volume cache))))))
+
+(define (channel-volume->sound channel volume)
+  (let-values (((vol mute)
+                (if (=0 volume)
+                  (let ((cvol (channel-volume-cache channel)))
+                    (values (or cvol 0)
+                            (and cvol #t)))
+                  (values volume #f))))
+    (sound (volume vol)
+           (mute? mute))))
+
+(define (channel-sound->volume channel snd)
+  (let ((vol (sound-volume snd)))
+    (if (sound-mute? snd)
+      (begin (channel-volume-cache channel vol)
+             0)
+      vol)))
+
+(define (get-sound)
+  ;; Return 2 values: sound record(s) and the number of channels.
   ;;
-  ;; SND `volume' field should be either:
+  ;; If all channels have the same volume/mute, the first returned value
+  ;; is a single sound record.  Otherwise, it is a list of sound records
+  ;; for all the channels.
   ;;
-  ;;  - #f if volume value should not be changed.
+  ;; Return (#f #f) values if sound info cannot be obtained using
+  ;; `current-backend'.
+  (if-let1 ((volumes ((backend-getter (current-backend))))
+            (same-sound-check (same-sound-checker)))
+    (let loop ((channel 0)
+               (volumes volumes)
+               (sounds '()))
+      (match volumes
+        (()
+         (values (if (same-sound-check)
+                   (car sounds)
+                   (reverse! sounds))
+                 channel))
+        ((vol . rest-vols)
+         (let ((snd (channel-volume->sound channel vol)))
+           (same-sound-check snd)
+           (loop (inc channel)
+                 rest-vols
+                 (cons snd sounds))))))
+    (values #f #f)))
+
+(define (update-sound! snd value)
+  ;; Update and return sound record SND according to VALUE.
+  (match value
+    ((? string? str)
+     (let ((first-char (string-ref str 0))
+           (vol (string->number str)))
+       (cond
+        ((memv first-char '(#\+ #\-))
+         (sound-volume snd (+ (sound-volume snd) vol)))
+        (vol (sound-volume snd vol))
+        (else
+         (match str
+           ("on"     (sound-mute? snd #f))
+           ("off"    (sound-mute? snd #t))
+           ("toggle" (sound-mute? snd (not (sound-mute? snd))))
+           ("keep"   #f)
+           (unknown
+            (print-error "Unknown sound setting command: ~a" unknown)))))))
+    ((? integer? vol)
+     (sound-volume snd vol)))
+  snd)
+
+(define (update-sound snd value)
+  ;; Return a new sound record updating SND according to VALUE.
+  (let ((new-snd (sound (volume (sound-volume snd))
+                        (mute?  (sound-mute? snd)))))
+    (update-sound! new-snd value)))
+
+(define (set-backend-sound snd chn-count)
+  ;; Exit point for `set-sound'.
+  (if (apply (backend-setter (current-backend))
+             (map-indexed channel-sound->volume
+                          (if (list? snd)
+                            snd
+                            (make-list chn-count snd))))
+    (values snd chn-count)
+    (values #f #f)))
+
+(define (set-sound . args)
+  ;; Set sound according to ARGS.
+  ;;
+  ;; Return the same values as `get-sound'.  If ARGS are not specified,
+  ;; this procedure does the same as `get-sound'.
+  ;;
+  ;; If ARGS list consists of a single value, it is used to set all
+  ;; channels.  Otherwise, ARGS should specify values for all channels.
+  ;;
+  ;; Each argument from ARGS should have one of the following forms:
+  ;;
+  ;;  - #f or "keep" if sound should not be changed for this channel.
   ;;
   ;;  - Percentage integer (can be greater than 100 for some backends).
   ;;
@@ -279,28 +350,54 @@ Simple mixer control 'Master',0
   ;;    "-": to decrease volume by N,
   ;;    empty string: to set volume to N.
   ;;
-  ;;  - List with per-channel volumes (each volume can have one of the
-  ;;    above forms).
+  ;;  - "on" to unmute (turn sound on).
   ;;
-  ;; SND `state' field should be either #f (if state value should not be
-  ;; changed), `on' (to turn sound on), `off' (to turn sound off), or
-  ;; `toggle' string or symbol.
+  ;;  - "off" to mute (turn sound off).
   ;;
-  ;; Return sound record for the current sound value.
-  ;; See `get-sound' for details.
-  ((backend-setter (current-backend)) snd))
+  ;;  - "toggle" to toggle mute state.
+  (let-values (((snd chn-count) (get-sound)))
+    (match args
+      (() (values snd chn-count))
+      ((first-arg . rest-args)
+       (let ((single-arg?    (null? rest-args))
+             (same-channels? (not (list? snd))))
+         (if (and single-arg? same-channels?)
+           (set-backend-sound (update-sound! snd first-arg)
+                              chn-count)
+           (let ((same-sound-check (same-sound-checker))
+                 (sounds (if same-channels?
+                           (make-list chn-count snd)
+                           snd))
+                 (args   (if single-arg?
+                           (make-list chn-count first-arg)
+                           args)))
+             (let loop ((channel 0)
+                        (args args)
+                        (old-sounds sounds)
+                        (new-sounds '()))
+               (match old-sounds
+                 (()
+                  (set-backend-sound (if (same-sound-check)
+                                       (car new-sounds)
+                                       (reverse! new-sounds))
+                                     chn-count))
+                 ((cur . rest)
+                  (let ((snd (update-sound cur (car args))))
+                    (same-sound-check snd)
+                    (loop (inc channel)
+                          (cdr args)
+                          rest
+                          (cons snd new-sounds)))))))))))))
 
 (define (increase-volume percentage)
   ;; Increase sound volume by PERCENTAGE.
   ;; Return sound record for the current sound value.
-  (set-sound
-   (sound (volume (string-append "+" (number->string percentage))))))
+  (set-sound (string-append "+" (number->string percentage))))
 
 (define (decrease-volume percentage)
   ;; Decrease sound volume by PERCENTAGE.
   ;; Return sound record for the current sound value.
-  (set-sound
-   (sound (volume (string-append "-" (number->string percentage))))))
+  (set-sound (string-append "-" (number->string percentage))))
 
 (define current-backend (make-parameter be/amixer))
 

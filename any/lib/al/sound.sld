@@ -4,7 +4,7 @@
   (export sound
           sound?
           sound-volume
-          sound-state
+          sound-mute?
           backend
           backend?
           backend*
@@ -25,18 +25,24 @@
           decrease-volume)
 
   (import (scheme base)
+          (scheme case-lambda)
           (only (srfi 1) find)
+          (srfi 11)
           (srfi 115)
           (match)
           (drecords)
           (aux-utils)
           (let-macros)
           (al misc)
+          (al lists)
+          (al messages)
           (al processes))
 
   (cond-expand
     (guile
      (import (only (rnrs) filter)
+             (rnrs arithmetic fixnums)
+             (only (guile) reverse!)
              (ice-9 format)))
     (else))
 
