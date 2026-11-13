@@ -18,6 +18,54 @@
 (define %timeout-on 3)
 (define %timeout-off 0)
 
+(define-syntax-rule (make-channel-osd args ...)
+  (make-osd
+    (lines 2)
+    (bar-length 30)
+    (position 'bottom)
+    (font "-*-dejavu sans-bold-r-normal-*-*-280-*-*-p-*-*")
+    (shadow-offset 2)
+    (horizontal-offset 10)
+    (vertical-offset 10)
+    args ...))
+
+(define-values (left-osd
+                right-osd
+                hide-left-right-osds)
+  (let ((left #f)
+        (right #f))
+    (values
+      (lambda ()
+        (or left
+            (let ((osd (make-channel-osd (align 'left))))
+              (register-osd osd)
+              (set! left osd)
+              osd)))
+
+      (lambda ()
+        (or right
+            (let ((osd (make-channel-osd (align 'right))))
+              (register-osd osd)
+              (set! right osd)
+              osd)))
+
+      (lambda ()
+        (when left  (hide-osd (left-osd)))
+        (when right (hide-osd (right-osd)))))))
+
+(define (show-sound-osd osd snd title)
+  (let ((volume (sound-volume snd))
+        (mute?  (sound-mute?  snd)))
+    (show-in-osd osd
+      (line0   (format #f "~a: ~d%" title volume))
+      (line1   volume)
+      (color   (if mute? %color-off   %color-on))
+      (timeout (if mute? %timeout-off %timeout-on)))))
+
+(define (sound->lisp snd)
+  (list (sound-volume snd)
+        (scheme->lisp (not (sound-mute? snd)))))
+
 (define output-sound
   ;; (output-sound SOUND [SHOW-OSD?])
   ;;
@@ -27,17 +75,36 @@
     ((snd)
      (output-sound snd #t))
     ((snd show-osd?)
-     (if-let ((snd (if (list? snd) (car snd) snd)))
-       (let ((volume (sound-volume snd))
-             (muted? (sound-mute? snd)))
-         (when show-osd?
-           (show-main-osd
-            (line0   (format #f "Sound: ~d%" volume))
-            (line1   volume)
-            (color   (if muted? %color-off   %color-on))
-            (timeout (if muted? %timeout-off %timeout-on))))
-         (list volume (scheme->lisp (not muted?))))
-       (display-error-in-main-osd "Cannot obtain sound value")))))
+     (match snd
+       (#f (display-error-in-main-osd "Cannot obtain sound value"))
+       ((? sound? snd)
+        (when show-osd?
+          (hide-left-right-osds)
+          (show-sound-osd (main-osd) snd "Sound"))
+        (sound->lisp snd))
+       ((snd)
+        (output-sound snd show-osd?))
+       ((left-snd right-snd)
+        (when show-osd?
+          (hide-osd (main-osd))
+          (show-sound-osd (left-osd)  left-snd "Left")
+          (show-sound-osd (right-osd) right-snd "Right"))
+        (list (sound->lisp left-snd)
+              (sound->lisp right-snd)))
+       (sounds
+        (when show-osd?
+          (hide-left-right-osds)
+          (let ((volumes (mapconcat
+                          (lambda (snd)
+                            (number->string
+                             (if (sound-mute? snd) 0 (sound-volume snd))))
+                          sounds
+                          ", ")))
+            (show-in-osd (main-osd)
+              (line0   (format #f "Sound: ~a%" volumes))
+              (color   %color-on)
+              (timeout %timeout-on))))
+        (map sound->lisp sounds))))))
 
 (define (sound* . args)
   (let-values (((snd ignore)

@@ -3,7 +3,9 @@
           %color-off
           %color-error
           main-osd
+          show-in-osd
           show-main-osd
+          display-in-osd
           display-in-main-osd
           display-error-in-main-osd)
   (import (rnrs)

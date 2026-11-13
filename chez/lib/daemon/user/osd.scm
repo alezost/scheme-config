@@ -31,10 +31,10 @@
   (shadow-offset 2)
   (vertical-offset 10))
 
-(define display-in-main-osd
-  ;; (display-in-main-osd LINE0 LINE1)
+(define display-in-osd
+  ;; (display-in-osd OSD LINE0 LINE1)
   ;;
-  ;; Display LINE0 and LINE1 in main OSD.
+  ;; Display LINE0 and LINE1 in OSD.
   ;;
   ;; LINE0 / LINE1 can be a string (for `display-string-in-osd') or
   ;; a number (for `display-percentage-in-osd').
@@ -44,37 +44,42 @@
                    (display-string-in-osd osd str line))
                   ((? number? num)
                    (display-percentage-in-osd osd num line))
-                  (else
+                  (·
                    (display-string-in-osd
                     osd
                     (format #f "'~a' must be a number/string"
                             str-or-num)
                     line))))))
-    (lambda (line0 line1)
-      (let ((osd (main-osd)))
-        (show osd (or line0 "") 0)
-        (show osd (or line1 "") 1)))))
+    (lambda (osd line0 line1)
+      (show osd (or line0 "") 0)
+      (show osd (or line1 "") 1))))
 
-(define-syntax show-main-osd
-  ;; (show-main-osd [(FIELD VALUE) ...])
+(define (display-in-main-osd line0 line1)
+  (display-in-osd (main-osd) line0 line1))
+
+(define-syntax show-in-osd
+  ;; (show-main-osd OSD [(FIELD VALUE) ...])
   ;;
-  ;; Show main OSD.
+  ;; Show OSD.
   ;;
   ;; If FIELDs are specified, they can be either `line0', `line1' (see
-  ;; `display-in-main-osd' for details), or any symbol supported by
+  ;; `display-in-osd' for details), or any symbol supported by
   ;; `set-osd!'.
   (lambda (x)
     (syntax-case x ()
-      ((_)
-       #'(show-osd (main-osd)))
-      ((_ args ...)
+      ((_ osd)
+       #'(show-osd osd))
+      ((_ osd args ...)
        (parse-arg-syntax '(line0 line1) #'(args ...)
          ((l0 l1 ())
-          #'(display-in-main-osd l0 l1))
+          #'(display-in-osd osd l0 l1))
          ((l0 l1 (args ...))
           #'(begin
-              (set-osd! (main-osd) args ...)
-              (display-in-main-osd l0 l1))))))))
+              (set-osd! osd args ...)
+              (display-in-osd osd l0 l1))))))))
+
+(define-syntax-rule (show-main-osd args ...)
+  (show-in-osd (main-osd) args ...))
 
 (define (display-error-in-main-osd string)
   ;; Show STRING in osd using `%color-error' color.
