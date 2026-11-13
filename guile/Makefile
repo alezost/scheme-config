@@ -22,6 +22,7 @@ LIB_SLD_FILES = 			\
   $(LIBDIR)/match.sld			\
   $(LIBDIR)/aux-utils.sld		\
   $(LIBDIR)/let-macros.sld		\
+  $(LIBDIR)/aalists.sld			\
   $(LIBDIR)/drecords.sld		\
   $(LIBDIR)/srfi/srfi-115/boundary.sld	\
   $(LIBDIR)/srfi/srfi-115.sld		\

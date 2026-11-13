@@ -56,6 +56,7 @@ LIB_SLS_FILES = 				\
   $(SRCLIBDIR)/match.sls			\
   $(SRCLIBDIR)/aux-utils.sls			\
   $(SRCLIBDIR)/let-macros.sls			\
+  $(SRCLIBDIR)/aalists.sls			\
   $(SRCLIBDIR)/drecords.sls			\
   $(SRCLIBDIR)/srfi/srfi-8.sls			\
   $(SRCLIBDIR)/srfi/srfi-9.sls			\

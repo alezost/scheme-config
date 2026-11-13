@@ -1,0 +1,6 @@
+((synopsis "Augmented alists")
+ (author "Alex Kost")
+ (category misc)
+ (license "GPL3")
+ (dependencies match aux-utils let-macros)
+ (components (extension aalists)))
