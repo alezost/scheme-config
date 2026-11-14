@@ -31,8 +31,10 @@
                 make-list
                 ;; define-values
                 make-parameter parameterize)
+          (srfi :26)
           (srfi :115)
           (match)
+          (aalists)
           (drecords)
           (pulseaudio)
           (aux-utils)

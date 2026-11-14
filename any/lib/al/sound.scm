@@ -238,12 +238,8 @@ Simple mixer control 'Master',0
        same?))))
 
 (define channel-volume-cache
-  (let ((cache '()))
-    (case-lambda
-      ((channel)
-       (assv-get channel cache))
-      ((channel volume)
-       (set! cache (assv-set! channel volume cache))))))
+  (let ((cache (make-aalist assv)))
+    (cut aalist-value cache <...>)))
 
 (define (channel-volume->sound channel volume)
   (let-values (((vol mute)
