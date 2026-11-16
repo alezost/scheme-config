@@ -265,12 +265,11 @@
               (mute      (ftype-ref  ft/sink-info (mute) fptr))
               (vol-fptr  (ftype-&ref ft/sink-info (volume) fptr))
               ;; (volume    (cvolume-max vol-fptr))
-              (channels  (cvolume->channels vol-fptr))
-              (info      (current-sink-info)))
-         ;; TODO use `set-sink-info!'
-         ;; (sink-info-volume info volume)
-         (sink-info-mute? info (integer->bool mute))
-         (sink-info-channels info channels))))
+              (channels  (cvolume->channels vol-fptr)))
+         (set-sink-info! (current-sink-info)
+           ;; (volume volume)
+           (mute? (integer->bool mute))
+           (channels channels)))))
    (void* void* int void*)
    void))
 
