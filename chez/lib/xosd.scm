@@ -395,27 +395,6 @@ library.
 
 ;;; Higher level interface
 
-(define-syntax set-osd!
-  ;; (set-osd! OSD [(PROP VALUE) ...])
-  ;;
-  ;; Update OSD object with the specified arguments.  Each PROP should
-  ;; be one of the OSD properties e.g., `position', `shadow-color', etc.
-  (lambda (x)
-    (define (prop->proc prop-syntax)
-      (syntax-case prop-syntax ()
-        (prop
-         (let* ((prop-symbol (syntax->datum #'prop))
-                (prop-string (symbol->string prop-symbol))
-                (proc-string (string-append "osd-" prop-string))
-                (proc-symbol (string->symbol proc-string)))
-           (datum->syntax #'prop proc-symbol)))))
-    (syntax-case x ()
-      ((_ osd (prop value) ...)
-       (with-syntax (((proc ...)
-                      (map prop->proc (syntax->list #'(prop ...)))))
-         #'(let ((o osd))
-             (proc o value) ...))))))
-
 (define-syntax make-osd
   ;; (make-osd [(PROP VALUE) ...])
   ;;

@@ -57,6 +57,12 @@ its value is #f:
 (package-name foo)                  ; returns "real-foo"
 (package-doc foo)                   ; returns #f (default value)
 
+Also, `set-package!' procedure can be used to set field values, e.g.:
+
+(set-package! foo
+  (name "fake-foo")
+  (doc "Does everything and more"))
+
 Finally, there is `package?' predicate to check if something is a
 package or not:
 
@@ -114,6 +120,11 @@ roughly expands to the following code:
   ;; Some wrapper that eventually calls
   (make-<package> name version doc dependencies))
 
+(define-syntax set-package!
+  ;; Some wrapper that eventually calls the following for every
+  ;; specified FIELD:
+  (package-FIELD pkg FIELD value))
+
 |#
 
 ;;; Code:
@@ -134,9 +145,31 @@ roughly expands to the following code:
   ;;
   ;; This syntax makes the following definitions:
   ;;
-  ;;   `name'                   syntax to define a new record;
-  ;;   `name?'                  record predicate;
-  ;;   `name-field'             field accessors for all FIELDs.
+  ;;   `name'
+  ;;
+  ;;      (name [(FIELD VALUE) ...])
+  ;;
+  ;;      Syntax to define a new NAME record with FIELD/VALUE pairs.
+  ;;
+  ;;   `set-name!'
+  ;;
+  ;;      (set-name! RECORD [(FIELD VALUE) ...])
+  ;;
+  ;;      Syntax to set FIELD/VALUE pairs for the existing NAME RECORD.
+  ;;
+  ;;   `name?'
+  ;;
+  ;;      (name? OBJECT)
+  ;;
+  ;;      NAME record predicate (returns #t if OBJECT is NAME record).
+  ;;
+  ;;   `name-field'
+  ;;
+  ;;      (name-FIELD OBJECT [VALUE])
+  ;;
+  ;;      Field accessors for all FIELDs.  If VALUE is not specified,
+  ;;      return the current FIELD value.  If VALUE is specified, set
+  ;;      and return FIELD VALUE.
   ;;
   ;; Also, since this is a `define-record-type' wrapper, the following
   ;; definitions are also made (they should not be used directly):
@@ -152,10 +185,12 @@ roughly expands to the following code:
               (name-sym        (syntax->datum #'name))
               (name-str        (symbol->string name-sym))
               (name?-str       (string-append name-str "?"))
+              (set-name!-str   (string-append "set-" name-str "!"))
               (<name>-str      (string-append "<" name-str ">"))
               (<name>?-str     (string-append "<" name-str ">?"))
               (make-<name>-str (string-append "make-<" name-str ">"))
               (name?-sym       (string->symbol name?-str))
+              (set-name!-sym   (string->symbol set-name!-str))
               (<name>-sym      (string->symbol <name>-str))
               (<name>?-sym     (string->symbol <name>?-str))
               (make-<name>-sym (string->symbol make-<name>-str)))
@@ -189,6 +224,8 @@ roughly expands to the following code:
               field-set) ...)
             (with-syntax
                 ((name?       (d->s name?-sym))
+                 (name-str    (d->s name-str))
+                 (set-name!   (d->s set-name!-sym))
                  (<name>      (d->s <name>-sym))
                  (<name>?     (d->s <name>?-sym))
                  (make-<name> (d->s make-<name>-sym)))
@@ -226,6 +263,24 @@ roughly expands to the following code:
                                                 (a (assq f alist)))
                                            (and a (cdr a)))))
                                       (syntax->list #'(field-name ...)))))
-                             #'(make-<name> args (... ...)))))))))))))))))
+                             #'(make-<name> args (... ...))))))))
+
+                  (define-syntax set-name!
+                    (lambda (x)
+                      (syntax-case x ()
+                        ((set name (fld val) (... ...))
+                         (with-syntax
+                             (((acc (... ...))
+                               (map (lambda (f)
+                                      (let* ((f-sym (syntax->datum f))
+                                             (f-str (symbol->string f-sym))
+                                             (a-str (string-append
+                                                     name-str "-" f-str))
+                                             (a-sym (string->symbol a-str)))
+                                        (datum->syntax #'set a-sym)))
+                                    (syntax->list #'(fld (... ...))))))
+                           #'(let ((var name))
+                               (acc var val)
+                               (... ...))))))))))))))))
 
 ;;; drecords.scm ends here
