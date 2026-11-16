@@ -15,6 +15,22 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+(define %help-string
+  "action COMMAND [ARGS ...]
+Make Chez Daemon execute action defined by COMMAND and ARGS.
+
+Available commands:
+
+  sound         Get/set sound and show it in OSD.
+  backlight     Get/set display backlight and show it in OSD.
+  text          Show text in OSD.
+  clock         Show clock in OSD.
+  show-osds     Show all hidden OSDs.
+  hide-osds     Hide all visible OSDs.
+  exit          Quit Chez Daemon.
+  help [CMD]    Show help for one of the above command.
+")
+
 (define (action cmd . args)
   (match cmd
     ("sound"     (apply osd-sound args))
@@ -28,13 +44,17 @@
                         (=> string->number)))
           (apply osd-text pause rest)
           (apply osd-text args)))
-       (_ (osd-text))))
+       (· (osd-text))))
     ("clock"     (apply osd-clock args))
     ("show-osds" (show-osds))
     ("hide-osds" (hide-osds))
     ("device"    (apply device args))
     ("exit"      (exit))
-    (_
+    ("help"
+     (match args
+       (() %help-string)
+       ((cmd . ·) (action cmd "help"))))
+    (·
      (display-error-in-main-osd
       (format #f "Unknown command: ~a" cmd)))))
 

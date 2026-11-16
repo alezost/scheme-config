@@ -33,24 +33,41 @@
         (color %backlight-color)))
      (scheme->lisp bl))))
 
+(define %help-string
+  "backlight [ARGS ...]
+
+Update screen backlight according to ARGS and show backlight OSD.
+
+Print the current screen backlight brightness (an integer from 0 to
+100) to standard output.
+
+ARGS have one of the following forms:
+
+  show
+
+    Return the current backlight value and show OSD; this is the default
+    action (performed if no ARGS are specified).
+
+  get
+
+    Return the current backlight value and do not show OSD (this is
+    the only form that does not show OSD).
+
+  [set] VALUE
+
+    Set backlight to VALUE (\"set\" keyword is optional).
+
+    VALUE should have \"sN\" format, where \"N\" is an integer from 0 to
+    100 and \"s\" is an optional sign i.e., \"s\" is either:
+
+    \"+\": to increase backlight by N,
+    \"-\": to decrease backlight by N,
+    empty string: to set backlight to N.
+
+    Examples: \"30\", \"+3\", \"-10\".
+")
+
 (define (osd-backlight . args)
-  ;; Update screen backlight according to ARGS and show backlight OSD.
-  ;;
-  ;; ARGS should be command line arguments (i.e., strings).  ARGS have
-  ;; one of the following forms:
-  ;;
-  ;;   () or ("show")   return current backlight and show OSD;
-  ;;
-  ;;   ("get")          return current backlight and do not show OSD;
-  ;;                    (this is the only form that does not show OSD);
-  ;;
-  ;;   ("set" "VALUE")  set backlight to the specified VALUE,
-  ;;                    see `set-backlight' for details.
-  ;;
-  ;; Example: (osd-backlight "set" "+3")
-  ;;
-  ;; Return the current backlight percentage (an integer from 0 to 100).
-  ;; Return false value in Lisp format if backlight is not available.
   (if (backlight-available?)
     (match args
       ((or () ("show"))
@@ -59,7 +76,10 @@
        (output-backlight (get-backlight) #f))
       (("set" value)
        (output-backlight (set-backlight value)))
-      (_
+      (("help") %help-string)
+      ((value)
+       (output-backlight (set-backlight value)))
+      (·
        (display-error-in-main-osd
         (format #f "Unknown arguments: ~a" args))))
     (display-error-in-main-osd

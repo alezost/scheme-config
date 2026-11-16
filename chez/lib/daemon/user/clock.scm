@@ -54,7 +54,18 @@
       (if (osd-displayed? (clock-osd))
         (osd-clock "hide")
         (osd-clock "show")))
-     (_
+     (("help")
+      "clock [ARGS ...]
+
+Show/hide OSD with clock.
+
+ARGS have one of the following forms:
+
+  show        Show clock OSD (this is the default action).
+  hide        Hide clock OSD.
+  toggle      Toggle clock OSD.
+")
+     (·
       (display-error-in-main-osd
        (format #f "Unknown arguments: ~a" args))))))
 

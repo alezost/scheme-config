@@ -75,15 +75,19 @@
      (display-strings-in-osd strings pause))))
 
 (define (osd-text . args)
-  ;; Show ARGS (strings) in OSD on separate lines.
-  ;;
-  ;; The first argument can be a number.  In this case, it is used as
-  ;; the number of seconds to pause between displaying strings (rest
-  ;; arguments).
-  ;;
-  ;; If ARGS are not specified, show OSD with the previously displayed
-  ;; strings.  If a single string is specified, it may contain newlines.
   (match args
+    (("help")
+      "text [STRINGS ...]
+
+Show STRINGS in OSD on separate lines.
+
+If the first argument is an integer from 0 to 9, it is used as the
+number of seconds to pause between displaying strings (rest arguments).
+
+If STRINGS are not specified, show OSD with the previously
+displayed strings.  If a single string is specified, it may contain
+newlines.
+")
     (((? number? pause) strings …)
      (osd-text-pause strings pause))
     (strings

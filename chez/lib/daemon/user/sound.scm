@@ -111,39 +111,69 @@
                 (apply set-sound args)))
     snd))
 
+(define (help-string)
+  (string-append
+   "sound [ARGS ...]
+
+Update sound according to ARGS and show sound OSD.
+
+Print the current sound value to standard output.
+This value has (VOLUME ON) form, where
+
+  VOLUME is a percentage integer (can be greater than 100).
+
+  ON is a boolean value in Lisp format (nil or t) showing if the sound
+  is on or off (muted).
+
+ARGS have one of the following forms:
+
+  show
+
+    Return the current sound value and show OSD; this is the default
+    action (performed if no ARGS are specified).
+
+  get
+
+    Return the current sound value and do not show OSD (this is the
+    only form that does not show OSD).
+
+  [set] VALUES ...
+
+    Set sound to VALUES (\"set\" keyword is optional).
+
+    If VALUES consists of a single value, it is used to set all
+    channels.  Otherwise, VALUES are used to set per-channel volumes.
+
+    Each value should have one of the following forms:
+
+      on          Unmute (turn sound on).
+
+      off         Mute (turn sound off).
+
+      toggle      Toggle mute state.
+
+      keep        Do nothing for this channel.
+
+      [s]N form, where
+
+        \"N\" is a volume percentage (can be greater than 100),
+
+        \"s\" is an optional sign i.e., \"s\" is either:
+
+          \"+\": to increase sound by N,
+          \"-\": to decrease sound by N,
+          empty string: to set sound to N.
+
+        Examples: \"70\", \"+3\", \"-10\".
+
+  backend NAME
+
+    Change backend to NAME.
+    Available backends: "
+   (mapconcat backend-name (backends) ", ")
+   ".\n"))
+
 (define (osd-sound . args)
-  ;; Update sound according to ARGS and show sound OSD.
-  ;;
-  ;; ARGS should be command line arguments (i.e., strings).  ARGS have
-  ;; one of the following forms:
-  ;;
-  ;;   () or ("show")   return current sound and show OSD;
-  ;;
-  ;;   ("get")          return current sound and do not show OSD
-  ;;                    (this is the only form that does not show OSD);
-  ;;
-  ;;   ("set" "VALUE")  set sound volume to the specified VALUE,
-  ;;                    see `set-sound' for details;
-  ;;
-  ;;   ("backend" "NAME")  set sound backend to NAME; available NAMEs:
-  ;;                       "amixer", "alsa", "pactl", "pulse".
-  ;;
-  ;;   ("on")           unmute (turn sound on);
-  ;;
-  ;;   ("off")          mute (turn sound off);
-  ;;
-  ;;   ("toggle")       toggle mute state.
-  ;;
-  ;; Example: (osd-sound "set" "+3")
-  ;;
-  ;; Return (VOLUME ON) list, where
-  ;;
-  ;;   VOLUME is an integer from 0 to 100,
-  ;;
-  ;;   ON is a boolean value in Lisp format showing if sound is on or
-  ;;   off (muted).
-  ;;
-  ;; Return false value in Lisp format in case of any error.
   (match args
     ((or () ("show"))
      (output-sound (sound*) #t))
@@ -162,7 +192,7 @@
        (display-error-in-main-osd
         (format #f "Unknown sound backend: ~a" name)))
      name)
-    (args
-     (output-sound (apply sound* args)))))
+    (("help") (help-string))
+    (· (output-sound (apply sound* args)))))
 
 ;;; sound.scm ends here
