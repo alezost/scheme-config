@@ -37,7 +37,7 @@
   ;;
   ;; volume                ; volume value integer (not percentage)
   mute?                 ; #t (if sound is off) or #f (if sound is on)
-  channels              ; list with volumes for each channel
+  (channels '())        ; list with volumes for each channel
   )
 
 ;; `current-sink' should be a sink index (integer).

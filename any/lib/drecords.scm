@@ -36,26 +36,27 @@ This library does exactly this.  It provides `define-drecord' macro to
 define declarative-style records.  Example:
 
 (define-drecord package
-  name version doc dependencies)
+  name version doc (dependencies '()))
 
 Here, we have defined `package' record with `name', `version', `doc',
-and `dependencies' fields.   Now we can use `package' syntax to define
-packages declaratively like this:
+and `dependencies' fields.  `dependencies' has the empty list as its
+default value, the rest fields have #f as the default values.  Now we
+can use `package' syntax to define packages declaratively like this:
 
 (define foo
   (package
     (name "foo")
-    (version "3.14")
-    (dependencies '("bar1" "bar2"))))
+    (version "3.14")))
 
 We can use `package-FIELD' procedures to get or set field values (all
 fields are mutable).  If a field was omitted during package declaration,
 its value is #f:
 
-(package-name foo)                  ; returns "foo"
-(package-name foo "real-foo")       ; returns "real-foo" (new name)
-(package-name foo)                  ; returns "real-foo"
-(package-doc foo)                   ; returns #f (default value)
+(package-name foo)                  ; => "foo"
+(package-name foo "real-foo")       ; => "real-foo" (new name)
+(package-name foo)                  ; => "real-foo"
+(package-doc foo)                   ; => #f
+(package-dependencies foo)          ; => ()
 
 Also, `set-package!' procedure can be used to set field values, e.g.:
 
@@ -70,13 +71,14 @@ package or not:
 (package? "foo")        ; #f
 
 Default field accessors (get/set procedures) can be replaced with custom
-ones by specifying (FIELD MAKE-ACCESSOR) instead of FIELD during record
-declaration.  MAKE-ACCESSOR is a procedure that takes the default
+ones by specifying (FIELD DEFAULT MAKE-ACCESSOR) instead of FIELD during
+record declaration.  MAKE-ACCESSOR is a procedure that takes the default
 accessor and returns a custom accessor.  For example:
 
 (define-drecord package
   name version
-  (doc (lambda (acc)
+  (doc ""
+       (lambda (acc)
          (case-lambda
            ((pkg) (acc pkg))
            ((pkg doc) (acc pkg (string-append "docstring: " doc)))))))
@@ -136,9 +138,11 @@ roughly expands to the following code:
   ;; one of the following forms:
   ;;
   ;;   FIELD
-  ;;   (FIELD MAKE-ACCESSOR)
+  ;;   (FIELD DEFAULT-VALUE)
+  ;;   (FIELD DEFAULT-VALUE MAKE-ACCESSOR)
   ;;
-  ;; FIELD is a field name (should be a symbol).  MAKE-ACCESSOR is a
+  ;; FIELD is a field name (should be a symbol).  DEFAULT-VALUE is the
+  ;; FIELD's default value (#f if not specified).  MAKE-ACCESSOR is a
   ;; procedure accepting a single argument, the default accessor, and
   ;; returning a new accessor, a procedure to get and set record fields.
   ;; See example in the commentary of this file.
@@ -197,12 +201,14 @@ roughly expands to the following code:
          (syntax-case
              (map (lambda (fld-stx)
                     (let-values
-                        (((fld-sym acc)
+                        (((fld-sym def-val acc)
                           (match (syntax->datum fld-stx)
                             ((? symbol? fld)
-                             (values fld #f))
-                            ((fld acc)
-                             (values fld acc)))))
+                             (values fld #f #f))
+                            ((fld val)
+                             (values fld val #f))
+                            ((fld val acc)
+                             (values fld val acc)))))
                       (let* ((fld-str (symbol->string fld-sym))
                              (g/s-str (string-append name-str "-" fld-str))
                              (get-str (string-append <name>-str "-" fld-str))
@@ -212,6 +218,7 @@ roughly expands to the following code:
                              (set-sym (string->symbol set-str)))
                         (list (d->s fld-sym)
                               (d->s acc)
+                              (d->s def-val)
                               (d->s g/s-sym)
                               (d->s get-sym)
                               (d->s set-sym)))))
@@ -219,6 +226,7 @@ roughly expands to the following code:
              ()
            (((field-name
               field-accessor
+              field-default
               field-get/set
               field-get
               field-set) ...)
@@ -256,13 +264,16 @@ roughly expands to the following code:
                                            #'(val (... ...)))))
                            (with-syntax
                                (((args (... ...))
-                                 (map (lambda (f)
+                                 (map (lambda (f v)
                                         (datum->syntax
                                          #'name
                                          (let* ((f (syntax->datum f))
                                                 (a (assq f alist)))
-                                           (and a (cdr a)))))
-                                      (syntax->list #'(field-name ...)))))
+                                           (if a
+                                             (cdr a)
+                                             (syntax->datum v)))))
+                                      (syntax->list #'(field-name ...))
+                                      (syntax->list #'(field-default ...)))))
                              #'(make-<name> args (... ...))))))))
 
                   (define-syntax set-name!

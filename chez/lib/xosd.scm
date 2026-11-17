@@ -379,18 +379,18 @@ library.
 
 (define-drecord osd
   object
-  (align             (osd-accessor-getter set-osd-align!))
-  (position          (osd-accessor-getter set-osd-position!))
-  (bar-length        (osd-accessor-getter set-osd-bar-length!))
-  (timeout           (osd-accessor-getter set-osd-timeout!))
-  (color             (osd-accessor-getter set-osd-color!))
-  (font              (osd-accessor-getter set-osd-font!))
-  (horizontal-offset (osd-accessor-getter set-osd-horizontal-offset!))
-  (vertical-offset   (osd-accessor-getter set-osd-vertical-offset!))
-  (outline-offset    (osd-accessor-getter set-osd-outline-offset!))
-  (shadow-offset     (osd-accessor-getter set-osd-shadow-offset!))
-  (outline-color     (osd-accessor-getter set-osd-outline-color!))
-  (shadow-color      (osd-accessor-getter set-osd-shadow-color!)))
+  (align             #f (osd-accessor-getter set-osd-align!))
+  (position          #f (osd-accessor-getter set-osd-position!))
+  (bar-length        #f (osd-accessor-getter set-osd-bar-length!))
+  (timeout           #f (osd-accessor-getter set-osd-timeout!))
+  (color             #f (osd-accessor-getter set-osd-color!))
+  (font              #f (osd-accessor-getter set-osd-font!))
+  (horizontal-offset #f (osd-accessor-getter set-osd-horizontal-offset!))
+  (vertical-offset   #f (osd-accessor-getter set-osd-vertical-offset!))
+  (outline-offset    #f (osd-accessor-getter set-osd-outline-offset!))
+  (shadow-offset     #f (osd-accessor-getter set-osd-shadow-offset!))
+  (outline-color     #f (osd-accessor-getter set-osd-outline-color!))
+  (shadow-color      #f (osd-accessor-getter set-osd-shadow-color!)))
 
 
 ;;; Higher level interface
