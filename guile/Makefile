@@ -33,6 +33,9 @@ LIB_SLD_FILES = 			\
   $(LIBDIR)/al/places.sld		\
   $(LIBDIR)/al/messages.sld		\
   $(LIBDIR)/al/processes.sld		\
+  $(LIBDIR)/al/links.sld		\
+  $(LIBDIR)/al/sources.sld		\
+  $(LIBDIR)/al/configs.sld		\
   $(LIBDIR)/al/sound.sld		\
   $(LIBDIR)/al/backlight.sld		\
   $(LIBDIR)/al/osd.sld

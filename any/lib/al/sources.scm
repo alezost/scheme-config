@@ -9,12 +9,12 @@
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
-
+;;
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
-
+;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -27,37 +27,22 @@
 
 ;;; Code:
 
-(define-module (al sources)
-  #:use-module (let-macros)
-  #:use-module (al messages)
-  #:use-module (al records)
-  #:export (make-source
-            source*
-            source?
-            source-uri
-            source-directory
-            fetch-source))
-
-(define-record-type* <source>
-  make-source source*
-  source?
-  (uri       source-uri #f)
-  (directory source-directory #f))
+(define-drecord source uri directory)
 
 (define (git-clone repository directory)
-  "Clone git REPOSITORY to DIRECTORY."
+  ;; Clone git REPOSITORY to DIRECTORY.
   (system* "git" "clone" repository directory))
 
 (define (git-pull directory)
-  "Run 'git pull' in DIRECTORY."
+  ;; Run "git pull" in DIRECTORY.
   (system* "git"
            (string-append "--work-tree=" directory)
            (string-append "--git-dir=" directory "/.git")
            "pull" "--verbose"))
 
 (define (fetch-source source)
-  "Fetch SOURCE from remote to local place.
-Initialize the local directory or update it if it already exists."
+  ;; Fetch SOURCE from remote to local place.
+  ;; Initialize the local directory or update it if it already exists.
   (if-let ((uri (source-uri source)))
     (if-let ((dir (source-directory source)
                   (<= file-exists?)))
