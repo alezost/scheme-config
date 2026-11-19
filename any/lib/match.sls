@@ -58,46 +58,7 @@
   ;; as an auxiliary literal in a syntax-rules form.
   (define-aux-symbols · … ___ ..1 ..= ..* *** ? $ @ struct object)
 
-  (define-syntax is-a?
-    (syntax-rules ()
-      ((_ rec rtn)
-       (let ((rec: rec))
-        (and (record? rec:)
-             (eq? (record-type-name (record-rtd rec:))
-                  (quote rtn)))))))
-
-  (define-syntax slot-ref
-    (syntax-rules ()
-      ((_ rtn rec n)
-       (let ((n: n) (rec: rec))
-         (if (number? n:)
-             ((record-accessor (record-rtd rec:) n:) rec:)
-             ;; If it's not a number, then it should be a symbol with
-             ;; the name of a field.
-             (let* ((rtd (record-rtd rec:))
-                    (fields (record-type-field-names rtd))
-                    (fields-idxs (map cons
-                                      (vector->list fields)
-                                      (iota (vector-length fields))))
-                    (idx (cdr (assv n: fields-idxs))))
-               ((record-accessor rtd idx) rec:)))))))
-
-  (define-syntax slot-set!
-    (syntax-rules ()
-      ((_ rtn rec n val)
-       (let ((n: n) (rec: rec))
-         (if (number? n:)
-             ((record-mutator (record-rtd rec:) n) rec: val)
-             ;; If it's not a number, then it should be a symbol with
-             ;; the name of a field.
-             (let* ((rtd (record-rtd rec:))
-                    (fields (record-type-field-names rtd))
-                    (fields-idxs (map cons
-                                      (vector->list fields)
-                                      (iota (vector-length fields))))
-                    (idx (cdr (assv n: fields-idxs))))
-               ((record-mutator rtd idx) rec: val)))))))
-
+  (include "match.r6rs.scm")
   (include "match.scm"))
 
 ;;; match.sls ends here
