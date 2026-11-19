@@ -222,7 +222,7 @@ roughly expands to the following code:
                               (d->s g/s-sym)
                               (d->s get-sym)
                               (d->s set-sym)))))
-                  (syntax->list #'(field ...)))
+                  #'(field ...))
              ()
            (((field-name
               field-accessor
