@@ -4,6 +4,14 @@
           (rnrs syntax-case)
           (rnrs records syntactic)
           (match)
-          (only (guile) include identity))
-  (begin (define syntax->list identity))
+          (only (scheme base) include))
+
+  (begin
+    ;; Taken from Chez manual.
+    (define syntax->list
+      (lambda (ls)
+        (syntax-case ls ()
+          (() '())
+          ((x . r) (cons #'x (syntax->list #'r)))))))
+
   (include "drecords.scm"))
