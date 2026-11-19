@@ -1,0 +1,5 @@
+(define-library (srfi 0)
+  (export cond-expand)
+  (import (rnrs)
+          (srfi 0 aux))
+  (include "0.scm"))
