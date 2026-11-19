@@ -11,17 +11,19 @@
 ;;    <git://code.call-cc.org/eggs-6-latest>.
 
 (define-library (match)
-  (export match
-          match-lambda
-          match-lambda*
-          match-let
-          match-let*
-          match-letrec)
-  (import (scheme base))
+  (export
+    match
+    match-lambda
+    match-lambda*
+    match-let
+    match-let*
+    match-letrec
+    match-named-let)
 
   (cond-expand
     (chicken
      (import
+       (scheme base)
        (chicken base)
        (chicken memory representation))
      (begin
@@ -48,6 +50,7 @@
             (record-instance? rec type))))))
 
     (guile
+     (import (scheme base))
      (begin
        (define-syntax slot-ref
          (syntax-rules ()
@@ -61,7 +64,25 @@
          (syntax-rules ()
            ((_ rec type)
             (and (struct? rec)
-                 (eq? (struct-vtable rec) type))))))))
+                 (eq? (struct-vtable rec) type)))))))
+
+    (loko
+     (import
+       (rnrs)
+       (rnrs records syntactic)
+       (rnrs records procedural)
+       (rnrs records inspection)
+       (rnrs arithmetic fixnums)
+       (srfi 0))
+     (begin
+       ;; TODO move it somewhere
+       (define (iota n)
+         (let lp ((i 0)
+                  (res '()))
+           (if (fx<? i n)
+             (lp (fx+ i 1) (cons i res))
+             (reverse res)))))
+     (include "match.r6rs.scm")))
 
   (include "match.code.scm"))
 
