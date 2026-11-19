@@ -1,0 +1,25 @@
+(2026-11-17)
+
+R6RS and R7RS-compatible implementation.  Many SRFIs included.  Does not
+compile ELF binary executables.  Instead, compiles fasl files and
+produces shell wrappers for them (that start "larceny").  Recently,
+Larceny development continued after 9 years pause.
+
+https://www.larcenists.org/
+
+** Fetching the source
+
+#+begin_src sh
+git clone https://github.com/larcenists/larceny.git ~/src/scheme/larceny
+#+end_src
+
+** Building and installing
+
+Compiling from source appeared to be too complicated: another compatible Scheme implementation (which is an existing instance of Larceny) is needed.  There are tarballs with compiled binaries, e.g.:
+
+#+begin_src sh
+wget https://www.larcenists.org/LarcenyReleases/larceny-1.3-bin-native-ia32-linux86.tar.gz
+wget https://github.com/larcenists/larceny/releases/download/v1.5/larceny-1.5-bin-native-ia32-linux86.tar.gz
+#+end_src
+
+But they exist only for x86-32 (not x86-64).

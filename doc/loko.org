@@ -1,0 +1,21 @@
+(2026-11-18)
+
+R6RS and R7RS-compatible implementation.  Compiles only static binaries.
+
+https://scheme.fail
+
+** Fetching the source
+
+#+begin_src sh
+git clone https://gitlab.com/weinholt/loko ~/src/scheme/loko
+#+end_src
+
+** Building and installing
+Requires Chez (see [[file:chez.org]]) and Akku (see [[file:akku.org]]).
+
+#+begin_src sh
+cd ~/src/scheme/loko
+make PREFIX=$HOME/.local
+# Run "torsocks akku install" if the above line hangs on downloading.
+make PREFIX=$HOME/.local install install-info
+#+end_src

@@ -1,0 +1,21 @@
+(2026-11-18)
+
+Akku is a Scheme package manager.
+
+https://akkuscm.org/
+
+** Fetching the source
+
+#+begin_src sh
+git clone https://gitlab.com/akkuscm/akku.git ~/src/scheme/akku
+#+end_src
+
+** Building and installing
+
+#+begin_src sh
+cd ~/src/scheme/akku
+./bootstrap
+./configure --prefix=$HOME/.local
+make
+make install
+#+end_src
